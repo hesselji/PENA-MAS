@@ -73,8 +73,9 @@ final class Notification
                 ON ol.id = n.letter_id
 
              WHERE n.user_id = ?
-               AND n.is_deleted = 0
-               AND ol.sensitivity = 'BIASA'
+             AND n.is_deleted = 0
+             AND n.deleted_at IS NULL
+             AND ol.sensitivity = 'BIASA'
 
              ORDER BY n.id DESC
 
@@ -97,9 +98,10 @@ final class Notification
              INNER JOIN outgoing_letters ol
                 ON ol.id = n.letter_id
              WHERE n.user_id = ?
-               AND n.is_deleted = 0
-               AND n.is_read = 0
-               AND ol.sensitivity = 'BIASA'"
+             AND n.is_deleted = 0
+             AND n.deleted_at IS NULL
+             AND n.is_read = 0
+             AND ol.sensitivity = 'BIASA'"
         );
 
         $stmt->execute([$userId]);
@@ -136,6 +138,7 @@ final class Notification
 
         return $stmt->rowCount() > 0;
     }
+    
 
     /**
      * Menghapus notifikasi dari daftar user.
@@ -165,4 +168,29 @@ final class Notification
 
         return $stmt->rowCount() > 0;
     }
+    /**
+ * Tandai semua notifikasi yang belum dibaca sebagai sudah dibaca.
+ */
+public static function markAllAsRead(int $userId): int
+{
+    $stmt = Database::connection()->prepare(
+        "UPDATE notifications n
+         INNER JOIN outgoing_letters ol
+            ON ol.id = n.letter_id
+
+         SET
+            n.is_read = 1,
+            n.read_at = NOW()
+
+         WHERE n.user_id = ?
+           AND n.is_deleted = 0
+           AND n.deleted_at IS NULL
+           AND n.is_read = 0
+           AND ol.sensitivity = 'BIASA'"
+    );
+
+    $stmt->execute([$userId]);
+
+    return $stmt->rowCount();
+}
 }

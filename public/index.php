@@ -80,10 +80,6 @@ $router->post(
 
 $router->get('/incoming', [IncomingLetterController::class, 'index']);
 
-$router->get('/api/notifications', [NotificationController::class, 'index']);
-$router->post('/api/notifications/{id}/read', [NotificationController::class, 'read']);
-$router->post('/api/notifications/{id}/delete', [NotificationController::class, 'delete']);
-
 $router->get('/incoming', [IncomingLetterController::class, 'index']);
 $router->get('/incoming/create', [IncomingLetterController::class, 'create']);
 $router->post('/incoming', [IncomingLetterController::class, 'store']);

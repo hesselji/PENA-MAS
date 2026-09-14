@@ -497,9 +497,10 @@ if (profileChip && profileDropdown) {
   // =====================================================================
   const notificationButton = $('#notificationButton');
   const notificationPanel = $('#notificationPanel');
-  const notificationDot = $('#notificationDot');
+  const notificationCount = $('#notificationCount');
   const notificationList = $('#notificationList');
   const notificationSummary = $('#notificationSummary');
+  const notificationMarkAll = $('#notificationMarkAll');
 
   const csrfToken = $('meta[name="csrf-token"]')?.getAttribute('content') || '';
 
@@ -529,11 +530,24 @@ if (profileChip && profileDropdown) {
   /**
    * Update titik kuning pada tombol bell.
    */
-  const updateNotificationDot = (count) => {
-    if (!notificationDot) return;
+  const updateNotificationCount = (count) => {
+  if (!notificationCount) return;
 
-    notificationDot.hidden = Number(count) <= 0;
-  };
+  const total = Number(count) || 0;
+
+  if (total <= 0) {
+    notificationCount.hidden = true;
+    notificationCount.textContent = '0';
+    return;
+  }
+
+  notificationCount.hidden = false;
+
+  notificationCount.textContent =
+    total > 99
+      ? '99+'
+      : String(total);
+};
 
   /**
    * Tampilkan loading.
@@ -729,7 +743,7 @@ if (profileChip && profileDropdown) {
       const count = Number(result.count || 0);
       const data = Array.isArray(result.data) ? result.data : [];
 
-      updateNotificationDot(count);
+      updateNotificationCount(count);
       renderNotifications(data);
 
       if (notificationSummary) {
@@ -809,7 +823,9 @@ if (profileChip && profileDropdown) {
         throw new Error('Gagal menandai notifikasi.');
       }
 
-      updateNotificationDot(Number(result.count || 0));
+      updateNotificationCount(
+  Number(result.count || 0)
+);
 
       const item = document.querySelector(
         `.notification-item[data-notification-id="${CSS.escape(String(id))}"]`
@@ -853,6 +869,101 @@ if (profileChip && profileDropdown) {
    * Ini TIDAK menghapus surat dari outgoing_letters.
    * Hanya menghapus notifikasi user.
    */
+
+  /**
+ * Tandai semua notifikasi sebagai sudah dibaca.
+ */
+const markAllNotificationsAsRead = async () => {
+  if (!notificationMarkAll) return;
+
+  notificationMarkAll.disabled = true;
+
+  try {
+    const body = new URLSearchParams();
+    body.append('_token', csrfToken);
+
+    const response = await fetch(
+      '/api/notifications/read-all',
+      {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+          'Content-Type':
+            'application/x-www-form-urlencoded; charset=UTF-8'
+        },
+        credentials: 'same-origin',
+        body: body.toString()
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    const result = await response.json();
+
+    if (!result.success) {
+      throw new Error(
+        result.message || 'Gagal menandai semua notifikasi.'
+      );
+    }
+
+    /*
+     * Badge menjadi 0.
+     */
+    updateNotificationCount(
+      Number(result.count || 0)
+    );
+
+    /*
+     * Hilangkan status belum dibaca
+     * dari seluruh item yang tampil.
+     */
+    document
+      .querySelectorAll('.notification-item.is-unread')
+      .forEach((item) => {
+
+        item.classList.remove('is-unread');
+
+        const unreadDot =
+          $('.notification-unread-dot', item);
+
+        unreadDot?.remove();
+
+        const readButton =
+          $('[data-notification-action="read"]', item);
+
+        if (readButton) {
+          readButton.disabled = true;
+        }
+      });
+
+    /*
+     * Update tulisan di bawah judul popup.
+     */
+    if (notificationSummary) {
+      notificationSummary.textContent =
+        'Tidak ada yang belum dibaca';
+    }
+
+  } catch (error) {
+
+    console.error(
+      'Mark all notifications read error:',
+      error
+    );
+
+    window.alert(
+      'Semua notifikasi gagal ditandai sebagai sudah dibaca.'
+    );
+
+  } finally {
+
+    notificationMarkAll.disabled = false;
+  }
+};
+
   const deleteNotification = async (id, button) => {
     if (!id) return;
 
@@ -886,7 +997,9 @@ if (profileChip && profileDropdown) {
         throw new Error('Gagal menghapus notifikasi.');
       }
 
-      updateNotificationDot(Number(result.count || 0));
+      updateNotificationCount(
+  Number(result.count || 0)
+);
 
       const item = document.querySelector(
         `.notification-item[data-notification-id="${CSS.escape(String(id))}"]`
@@ -928,6 +1041,19 @@ if (profileChip && profileDropdown) {
 
     setNotificationPanel(!notificationOpen);
   });
+  
+  /**
+ * Tombol tandai semua dibaca.
+ */
+notificationMarkAll?.addEventListener(
+  'click',
+  (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    markAllNotificationsAsRead();
+  }
+);
 
   /**
    * Klik di dalam popup tidak menutup popup.

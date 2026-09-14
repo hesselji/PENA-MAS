@@ -91,15 +91,22 @@ $searchPlaceholder = $searchIncoming ? 'Cari surat masuk, asal, perihal...' : 'C
                 <button class="icon-btn" type="button" data-theme-toggle aria-label="Ganti tema" title="Ganti tema"><span data-theme-icon><?= ui_icon('moon') ?></span></button>
                 <div class="notification-wrap">
     <button
-        class="icon-btn notification-btn"
-        type="button"
-        aria-label="Notifikasi"
-        title="Notifikasi"
-        id="notificationButton"
+    class="icon-btn notification-btn"
+    type="button"
+    aria-label="Notifikasi"
+    title="Notifikasi"
+    id="notificationButton"
+>
+    <?= ui_icon('bell') ?>
+
+    <span
+        class="notification-count"
+        id="notificationCount"
+        hidden
     >
-        <?= ui_icon('bell') ?>
-        <i id="notificationDot"></i>
-    </button>
+        0
+    </span>
+</button>
 
     <div
         class="notification-panel"
@@ -107,13 +114,22 @@ $searchPlaceholder = $searchIncoming ? 'Cari surat masuk, asal, perihal...' : 'C
         hidden
     >
         <div class="notification-header">
-            <div>
-                <strong>Notifikasi</strong>
-                <small id="notificationSummary">
-                    Memuat notifikasi...
-                </small>
-            </div>
-        </div>
+    <div>
+        <strong>Notifikasi</strong>
+
+        <small id="notificationSummary">
+            Memuat notifikasi...
+        </small>
+    </div>
+
+    <button
+        type="button"
+        class="notification-mark-all"
+        id="notificationMarkAll"
+    >
+        Tandai semua dibaca
+    </button>
+</div>
 
         <div
             class="notification-list"

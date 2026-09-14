@@ -616,19 +616,64 @@ html[data-theme="light"]{
     position:relative;
 }
 
-.notification-btn i{
-    position:absolute;
-    top:7px;
-    right:7px;
-    width:7px;
-    height:7px;
-    background:var(--bps-orange);
-    border-radius:50%;
-    box-shadow:0 0 0 2px var(--surface);
+/* =========================================================
+   NOTIFICATION COUNT BADGE
+========================================================= */
+
+.notification-btn{
+    position:relative;
 }
 
-.notification-btn i[hidden]{
+.notification-count{
+    position:absolute;
+
+    top:-5px;
+    right:-5px;
+
+    min-width:18px;
+    height:18px;
+
+    padding:0 5px;
+
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+
+    background:var(--bps-orange);
+    color:#fff;
+
+    border:2px solid var(--surface);
+
+    border-radius:999px;
+
+    font-size:8px;
+    font-weight:850;
+    line-height:1;
+
+    white-space:nowrap;
+
+    box-shadow:
+        0 3px 10px rgba(242,140,24,.28);
+
+    pointer-events:none;
+
+    animation:notificationBadgeIn .16s ease-out;
+}
+
+.notification-count[hidden]{
     display:none !important;
+}
+
+@keyframes notificationBadgeIn{
+    from{
+        opacity:0;
+        transform:scale(.7);
+    }
+
+    to{
+        opacity:1;
+        transform:scale(1);
+    }
 }
 
 .notification-panel{
@@ -703,6 +748,48 @@ html[data-theme="light"]{
     margin-top:2px;
     color:var(--muted);
     font-size:9px;
+}
+
+/* Tombol tandai semua dibaca */
+
+.notification-mark-all{
+    flex:0 0 auto;
+
+    padding:6px 8px;
+
+    border:1px solid var(--line);
+    border-radius:7px;
+
+    background:var(--surface-2);
+    color:var(--bps-blue);
+
+    font-size:8px;
+    font-weight:750;
+
+    cursor:pointer;
+
+    white-space:nowrap;
+
+    transition:
+        background .15s ease,
+        border-color .15s ease,
+        color .15s ease,
+        transform .15s ease;
+}
+
+.notification-mark-all:hover{
+    background:var(--surface-3);
+    border-color:var(--bps-blue);
+
+    color:var(--bps-blue);
+
+    transform:translateY(-1px);
+}
+
+.notification-mark-all:disabled{
+    opacity:.45;
+    cursor:default;
+    transform:none;
 }
 
 /* Daftar */
@@ -1099,5 +1186,26 @@ html[data-theme="light"] .notification-panel{
     .notification-action{
         width:30px;
         height:30px;
+    }
+}
+@media(max-width:430px){
+
+    .notification-header{
+        align-items:flex-start;
+    }
+
+    .notification-mark-all{
+        font-size:7px;
+        padding:5px 6px;
+    }
+
+    .notification-count{
+        top:-4px;
+        right:-4px;
+
+        min-width:17px;
+        height:17px;
+
+        font-size:7px;
     }
 }
