@@ -9346,3 +9346,845 @@ backdrop-filter:
 
     text-transform: uppercase;
 }
+
+/* ================================================================
+   MOBILE FIX - KATALOG KODE KLASIFIKASI
+   ================================================================ */
+
+@media (max-width: 700px) {
+
+    .master-filter {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+
+        grid-template-columns:
+            minmax(0, 1fr) !important;
+
+        gap: 10px !important;
+
+        overflow: hidden;
+    }
+
+
+    .master-filter > * {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+    }
+
+
+    .master-filter .filter-search {
+        grid-column: 1 / -1 !important;
+
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+
+        overflow: hidden;
+    }
+
+
+    .master-filter .filter-search input {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+
+        overflow: hidden;
+
+        text-overflow: ellipsis;
+    }
+
+
+    .master-filter select {
+        display: block;
+
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+
+        height: 44px !important;
+
+        padding:
+            0 38px 0 12px !important;
+
+        overflow: hidden;
+
+        white-space: nowrap;
+
+        text-overflow: ellipsis;
+
+        border-radius: 9px;
+    }
+
+
+    .master-filter .btn {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+
+        min-height: 44px;
+
+        justify-content: center;
+    }
+
+
+    .panel.section-gap {
+        max-width: 100%;
+        min-width: 0;
+    }
+
+
+    .compact-stat-grid,
+    .compact-stat-grid > *,
+    .users-panel {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+
+    .users-panel .data-table-wrap {
+        width: 100%;
+        max-width: 100%;
+
+        overflow-x: auto;
+        overflow-y: hidden;
+
+        -webkit-overflow-scrolling: touch;
+    }
+
+}
+
+
+@media (max-width: 480px) {
+
+    .master-filter {
+        padding: 12px !important;
+        gap: 9px !important;
+    }
+
+
+    .master-filter select,
+    .master-filter .btn,
+    .master-filter .filter-search {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+    }
+
+
+    .master-filter select {
+        font-size: 13px;
+    }
+
+
+    .master-filter .btn {
+        font-size: 11px;
+    }
+
+}
+
+/* ================================================================
+   1. PENGATURAN NOMOR
+   Hanya select di tabel mapping jenis surat
+   ================================================================ */
+
+.inline-admin-form select {
+    height: 42px !important;
+
+    min-width: 185px !important;
+
+    padding:
+        0 40px 0 12px !important;
+
+    color:
+        #eaf4fb !important;
+
+    border:
+        1px solid
+        rgba(71, 161, 214, .30) !important;
+
+    border-radius:
+        9px !important;
+
+    background-color:
+        #0b2236 !important;
+
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%2389bfdc' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"),
+        linear-gradient(
+            145deg,
+            rgba(12, 39, 61, .98),
+            rgba(7, 29, 47, .98)
+        ) !important;
+
+    background-repeat:
+        no-repeat,
+        no-repeat !important;
+
+    background-position:
+        right 12px center,
+        center !important;
+
+    background-size:
+        16px,
+        100% 100% !important;
+
+    -webkit-appearance:
+        none;
+
+    appearance:
+        none;
+
+    box-shadow:
+        inset 0 1px 0
+        rgba(255, 255, 255, .03) !important;
+
+    cursor:
+        pointer;
+
+    transition:
+        border-color .18s ease,
+        box-shadow .18s ease;
+}
+
+
+.inline-admin-form select:hover {
+    border-color:
+        rgba(35, 178, 236, .48) !important;
+}
+
+
+.inline-admin-form select:focus {
+    outline:
+        none !important;
+
+    border-color:
+        rgba(20, 190, 243, .82) !important;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(20, 180, 235, .07) !important;
+}
+
+
+.inline-admin-form select option {
+    color:
+        #ecf6fc;
+
+    background:
+        #0c2234;
+}
+
+
+
+/* ================================================================
+   2. KATALOG KKA
+   Hanya search + 2 dropdown dalam .master-filter
+   ================================================================ */
+
+.master-filter {
+    border-radius:
+        14px !important;
+
+    border:
+        1px solid
+        rgba(66, 156, 209, .26) !important;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(9, 31, 49, .84),
+            rgba(6, 25, 40, .84)
+        ) !important;
+}
+
+
+.master-filter .filter-search {
+    height:
+        44px;
+
+    min-width:
+        0;
+
+    border:
+        1px solid
+        rgba(77, 159, 208, .28) !important;
+
+    border-radius:
+        10px !important;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(10, 36, 56, .95),
+            rgba(6, 28, 45, .95)
+        ) !important;
+
+    box-shadow:
+        inset 0 1px 0
+        rgba(255, 255, 255, .025) !important;
+}
+
+
+.master-filter .filter-search:focus-within {
+    border-color:
+        rgba(20, 190, 243, .82) !important;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(20, 180, 235, .06) !important;
+}
+
+
+.master-filter .filter-search input {
+    width:
+        100%;
+
+    min-width:
+        0;
+
+    border:
+        0 !important;
+
+    outline:
+        0 !important;
+
+    color:
+        #e8f4fb !important;
+
+    background:
+        transparent !important;
+
+    box-shadow:
+        none !important;
+}
+
+
+.master-filter .filter-search input::placeholder {
+    color:
+        #6f8799 !important;
+}
+
+
+.master-filter select {
+    height:
+        44px !important;
+
+    width:
+        100% !important;
+
+    min-width:
+        0 !important;
+
+    padding:
+        0 40px 0 12px !important;
+
+    color:
+        #eaf4fb !important;
+
+    border:
+        1px solid
+        rgba(72, 159, 211, .30) !important;
+
+    border-radius:
+        10px !important;
+
+    background-color:
+        #0b2236 !important;
+
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%2389bfdc' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"),
+        linear-gradient(
+            145deg,
+            rgba(12, 39, 61, .98),
+            rgba(7, 29, 47, .98)
+        ) !important;
+
+    background-repeat:
+        no-repeat,
+        no-repeat !important;
+
+    background-position:
+        right 12px center,
+        center !important;
+
+    background-size:
+        16px,
+        100% 100% !important;
+
+    -webkit-appearance:
+        none;
+
+    appearance:
+        none;
+
+    cursor:
+        pointer;
+}
+
+
+.master-filter select:hover {
+    border-color:
+        rgba(35, 178, 236, .48) !important;
+}
+
+
+.master-filter select:focus {
+    outline:
+        none !important;
+
+    border-color:
+        rgba(20, 190, 243, .82) !important;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(20, 180, 235, .06) !important;
+}
+
+
+.master-filter select option {
+    color:
+        #eef7fc;
+
+    background:
+        #0c2234;
+}
+
+
+
+/* ================================================================
+   3. AGENDA SURAT MASUK
+   Hanya search + tahun pada halaman surat masuk
+   ================================================================ */
+
+.incoming-year-filter {
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        8px;
+}
+
+
+.incoming-year-filter > span {
+    color:
+        #8198aa;
+
+    font-size:
+        9px;
+}
+
+
+.incoming-year-filter input {
+    width:
+        105px !important;
+
+    height:
+        44px !important;
+
+    padding:
+        0 12px !important;
+
+    color:
+        #eaf4fb !important;
+
+    border:
+        1px solid
+        rgba(72, 159, 211, .30) !important;
+
+    border-radius:
+        10px !important;
+
+    outline:
+        none !important;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(12, 39, 61, .98),
+            rgba(7, 29, 47, .98)
+        ) !important;
+
+    box-shadow:
+        inset 0 1px 0
+        rgba(255, 255, 255, .025) !important;
+
+    transition:
+        border-color .18s ease,
+        box-shadow .18s ease;
+}
+
+
+.incoming-year-filter input:hover {
+    border-color:
+        rgba(35, 178, 236, .48) !important;
+}
+
+
+.incoming-year-filter input:focus {
+    border-color:
+        rgba(20, 190, 243, .82) !important;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(20, 180, 235, .06) !important;
+}
+
+
+.agenda-toolbar .toolbar-search {
+    height:
+        44px;
+
+    border:
+        1px solid
+        rgba(72, 159, 211, .28) !important;
+
+    border-radius:
+        10px !important;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(10, 36, 56, .95),
+            rgba(6, 28, 45, .95)
+        ) !important;
+
+    box-shadow:
+        inset 0 1px 0
+        rgba(255, 255, 255, .025) !important;
+}
+
+
+.agenda-toolbar .toolbar-search:focus-within {
+    border-color:
+        rgba(20, 190, 243, .82) !important;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(20, 180, 235, .06) !important;
+}
+
+
+.agenda-toolbar .toolbar-search input {
+    border:
+        0 !important;
+
+    outline:
+        0 !important;
+
+    color:
+        #e8f4fb !important;
+
+    background:
+        transparent !important;
+
+    box-shadow:
+        none !important;
+}
+
+
+.agenda-toolbar .toolbar-search input::placeholder {
+    color:
+        #6f8799 !important;
+}
+
+
+
+/* ================================================================
+   MOBILE KHUSUS 3 BAGIAN DI ATAS
+   ================================================================ */
+
+@media (max-width: 700px) {
+
+    .inline-admin-form select {
+        width:
+            100% !important;
+
+        min-width:
+            0 !important;
+    }
+
+
+    .master-filter {
+        grid-template-columns:
+            minmax(0, 1fr) !important;
+
+        gap:
+            10px !important;
+    }
+
+
+    .master-filter .filter-search,
+    .master-filter select,
+    .master-filter .btn {
+        width:
+            100% !important;
+
+        max-width:
+            100% !important;
+
+        min-width:
+            0 !important;
+    }
+
+
+    .incoming-year-filter {
+        width:
+            100%;
+
+        display:
+            grid;
+
+        grid-template-columns:
+            auto minmax(0, 1fr);
+
+        gap:
+            8px;
+    }
+
+
+    .incoming-year-filter input {
+        width:
+            100% !important;
+
+        min-width:
+            0 !important;
+    }
+
+}
+/* ================================================================
+   KATALOG KKA - SEARCH ICON ALIGNMENT
+   Ikon search sejajar di kiri teks input
+   ================================================================ */
+
+.master-filter .filter-search {
+    display: flex !important;
+    align-items: center !important;
+
+    gap: 10px !important;
+
+    padding:
+        0 13px !important;
+
+    height:
+        46px !important;
+
+    overflow:
+        hidden;
+}
+
+
+/* ikon search */
+.master-filter .filter-search > svg,
+.master-filter .filter-search .ui-icon {
+    flex:
+        0 0 auto;
+
+    width:
+        18px !important;
+
+    height:
+        18px !important;
+
+    margin:
+        0 !important;
+
+    color:
+        #8ba9bd;
+
+    position:
+        static !important;
+
+    transform:
+        none !important;
+}
+
+
+/* input pencarian */
+.master-filter .filter-search input {
+    flex:
+        1 1 auto !important;
+
+    width:
+        auto !important;
+
+    min-width:
+        0 !important;
+
+    height:
+        100% !important;
+
+    padding:
+        0 !important;
+
+    margin:
+        0 !important;
+
+    border:
+        0 !important;
+
+    outline:
+        0 !important;
+
+    background:
+        transparent !important;
+
+    box-shadow:
+        none !important;
+
+    color:
+        #e8f4fb !important;
+
+    line-height:
+        normal;
+}
+
+
+/* placeholder */
+.master-filter .filter-search input::placeholder {
+    color:
+        #6f8799 !important;
+
+    opacity:
+        1;
+}
+
+
+/* saat diklik */
+.master-filter .filter-search:focus-within > svg,
+.master-filter .filter-search:focus-within .ui-icon {
+    color:
+        #25c2f2;
+}
+
+/* ================================================================
+   AGENDA SURAT MASUK - FILTER ACTIONS
+   Tombol Reset compact di samping tombol Cari
+   ================================================================ */
+
+.incoming-filter-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    flex: 0 0 auto;
+}
+
+
+.incoming-search-btn {
+    min-height: 44px;
+    padding: 0 18px !important;
+
+    white-space: nowrap;
+}
+
+
+.incoming-reset-btn {
+    width: 44px;
+    height: 44px;
+
+    flex: 0 0 44px;
+
+    display: inline-grid;
+    place-items: center;
+
+    border:
+        1px solid
+        rgba(76, 151, 197, .26);
+
+    border-radius: 10px;
+
+    color: #8fa9ba;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(10, 34, 53, .92),
+            rgba(6, 26, 42, .92)
+        );
+
+    text-decoration: none;
+
+    box-shadow:
+        inset 0 1px 0
+        rgba(255, 255, 255, .025);
+
+    transition:
+        color .18s ease,
+        border-color .18s ease,
+        background .18s ease,
+        transform .18s ease,
+        box-shadow .18s ease;
+}
+
+
+.incoming-reset-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+
+.incoming-reset-btn:hover {
+    color: #2fc3f2;
+
+    border-color:
+        rgba(35, 181, 235, .48);
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(11, 44, 67, .98),
+            rgba(7, 32, 50, .98)
+        );
+
+    box-shadow:
+        0 0 0 3px
+        rgba(27, 176, 229, .05);
+
+    transform:
+        rotate(-12deg);
+}
+
+
+.incoming-reset-btn:active {
+    transform:
+        rotate(-12deg)
+        scale(.96);
+}
+
+
+/* ================================================================
+   MOBILE
+   Tetap sejajar dan tidak menjadi tombol panjang
+   ================================================================ */
+
+@media (max-width: 700px) {
+
+    .incoming-filter-actions {
+        width: 100%;
+
+        display: grid;
+
+        grid-template-columns:
+            minmax(0, 1fr)
+            44px;
+
+        gap: 8px;
+    }
+
+
+    .incoming-search-btn {
+        width: 100%;
+    }
+
+
+    .incoming-reset-btn {
+        width: 44px;
+        height: 44px;
+    }
+
+}
