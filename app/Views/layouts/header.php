@@ -90,7 +90,114 @@ $searchPlaceholder = $searchIncoming ? 'Cari surat masuk, asal, perihal...' : 'C
             </div>
             <div class="topbar-actions">
                 <button class="icon-btn" type="button" data-theme-toggle aria-label="Ganti tema" title="Ganti tema"><span data-theme-icon><?= ui_icon('moon') ?></span></button>
-                <div class="profile-chip"><div class="avatar"><?= e(user_initials(display_user_name($me['name']))) ?></div><div><strong><?= e(display_user_name($me['name'])) ?></strong><small><?= e($roleLabel) ?></small></div></div>
+               <div class="profile-menu" data-profile-menu>
+
+    <button
+        class="profile-chip profile-trigger"
+        type="button"
+        data-profile-trigger
+        aria-expanded="false"
+        aria-haspopup="true"
+    >
+        <div class="avatar">
+            <?= e(user_initials(display_user_name($me['name']))) ?>
+        </div>
+
+        <div class="profile-trigger-copy">
+            <strong>
+                <?= e(display_user_name($me['name'])) ?>
+            </strong>
+
+            <small>
+                <?= e($roleLabel) ?>
+            </small>
+        </div>
+
+        <span
+            class="profile-chevron"
+            aria-hidden="true"
+        >
+            <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+            >
+                <path d="m6 9 6 6 6-6"/>
+            </svg>
+        </span>
+    </button>
+
+
+    <div
+        class="profile-dropdown"
+        data-profile-dropdown
+        aria-hidden="true"
+    >
+
+        <div class="profile-dropdown-head">
+
+            <div class="avatar profile-dropdown-avatar">
+                <?= e(user_initials(display_user_name($me['name']))) ?>
+            </div>
+
+            <div>
+                <strong>
+                    <?= e(display_user_name($me['name'])) ?>
+                </strong>
+
+                <small>
+                    <?= e($roleLabel) ?>
+                </small>
+            </div>
+
+        </div>
+
+
+        <div class="profile-dropdown-divider"></div>
+
+
+        <form
+            method="post"
+            action="/logout"
+            class="profile-logout-form"
+        >
+            <?= csrf_field() ?>
+
+            <button
+                class="profile-logout-action"
+                type="submit"
+            >
+                <span class="profile-logout-icon">
+                    <?= ui_icon('logout') ?>
+                </span>
+
+                <span class="profile-logout-copy">
+                    <strong>Keluar</strong>
+                    <small>Akhiri sesi PENA MAS</small>
+                </span>
+
+                <span class="profile-logout-arrow">
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <path d="M5 12h14"/>
+                        <path d="m13 6 6 6-6 6"/>
+                    </svg>
+                </span>
+            </button>
+        </form>
+
+    </div>
+
+</div>
             </div>
         </header>
 

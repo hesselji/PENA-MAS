@@ -821,3 +821,177 @@
   );
 
 })();
+
+/* ================================================================
+   PROFILE DROPDOWN
+   ================================================================ */
+
+(() => {
+  'use strict';
+
+
+  const profileMenu =
+    document.querySelector(
+      '[data-profile-menu]'
+    );
+
+
+  if (!profileMenu) {
+    return;
+  }
+
+
+  const trigger =
+    profileMenu.querySelector(
+      '[data-profile-trigger]'
+    );
+
+
+  const dropdown =
+    profileMenu.querySelector(
+      '[data-profile-dropdown]'
+    );
+
+
+  if (
+    !trigger
+    ||
+    !dropdown
+  ) {
+    return;
+  }
+
+
+  const openMenu = () => {
+
+    profileMenu.classList.add(
+      'is-open'
+    );
+
+
+    trigger.setAttribute(
+      'aria-expanded',
+      'true'
+    );
+
+
+    dropdown.setAttribute(
+      'aria-hidden',
+      'false'
+    );
+
+  };
+
+
+  const closeMenu = () => {
+
+    profileMenu.classList.remove(
+      'is-open'
+    );
+
+
+    trigger.setAttribute(
+      'aria-expanded',
+      'false'
+    );
+
+
+    dropdown.setAttribute(
+      'aria-hidden',
+      'true'
+    );
+
+  };
+
+
+  const toggleMenu = () => {
+
+    if (
+      profileMenu.classList.contains(
+        'is-open'
+      )
+    ) {
+      closeMenu();
+
+    } else {
+      openMenu();
+    }
+
+  };
+
+
+  /*
+   * Klik avatar / nama.
+   */
+  trigger.addEventListener(
+    'click',
+    (event) => {
+
+      event.stopPropagation();
+
+      toggleMenu();
+
+    }
+  );
+
+
+  /*
+   * Klik di dalam dropdown tidak
+   * menutup sebelum tombol diproses.
+   */
+  dropdown.addEventListener(
+    'click',
+    (event) => {
+
+      event.stopPropagation();
+
+    }
+  );
+
+
+  /*
+   * Klik area lain menutup popup.
+   */
+  document.addEventListener(
+    'click',
+    () => {
+
+      closeMenu();
+
+    }
+  );
+
+
+  /*
+   * ESC menutup popup.
+   */
+  document.addEventListener(
+    'keydown',
+    (event) => {
+
+      if (
+        event.key === 'Escape'
+      ) {
+        closeMenu();
+
+        trigger.focus();
+      }
+
+    }
+  );
+
+
+  /*
+   * Jika layar berubah ukuran,
+   * tutup agar posisi popup dihitung ulang.
+   */
+  window.addEventListener(
+    'resize',
+    () => {
+
+      closeMenu();
+
+    }
+  );
+
+})();
