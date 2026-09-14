@@ -864,6 +864,39 @@ CREATE TABLE outgoing_letters (
     CONSTRAINT fk_letter_cancel_user FOREIGN KEY(cancelled_by) REFERENCES users(id)
 ) ENGINE=InnoDB;
 
+CREATE TABLE notifications (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+
+    user_id INT UNSIGNED NOT NULL,
+    letter_id BIGINT UNSIGNED NOT NULL,
+
+    is_read TINYINT(1) NOT NULL DEFAULT 0,
+    is_deleted TINYINT(1) NOT NULL DEFAULT 0,
+
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    read_at DATETIME NULL,
+    deleted_at DATETIME NULL,
+
+    UNIQUE KEY uq_notification_user_letter(user_id, letter_id),
+
+    INDEX idx_notification_user(
+        user_id,
+        is_deleted,
+        is_read,
+        created_at
+    ),
+
+    CONSTRAINT fk_notification_user
+        FOREIGN KEY(user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_notification_letter
+        FOREIGN KEY(letter_id)
+        REFERENCES outgoing_letters(id)
+        ON DELETE CASCADE
+) ENGINE=InnoDB;
+
 CREATE TABLE incoming_letters (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     letter_number VARCHAR(190) NOT NULL,

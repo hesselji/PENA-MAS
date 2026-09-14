@@ -1,85 +1,168 @@
 <?php
+
 namespace App\Models;
 
-use App\Core\Auth;
 use App\Core\Database;
 
 final class Notification
 {
-    public static function all(): array
+    /**
+     * Membuat notifikasi untuk semua user aktif
+     * ketika sebuah surat BIASA berhasil dibuat.
+     */
+    public static function createForLetter(int $letterId): void
+    {
+        $pdo = Database::connection();
+
+        $stmt = $pdo->prepare(
+            "SELECT id
+             FROM users
+             WHERE is_active = 1
+               AND deleted_at IS NULL"
+        );
+
+        $stmt->execute();
+
+        $users = $stmt->fetchAll();
+
+        if (!$users) {
+            return;
+        }
+
+        $insert = $pdo->prepare(
+            "INSERT IGNORE INTO notifications
+             (user_id, letter_id, is_read, is_deleted, created_at)
+             VALUES (?, ?, 0, 0, NOW())"
+        );
+
+        foreach ($users as $user) {
+            $insert->execute([
+                (int) $user['id'],
+                $letterId
+            ]);
+        }
+    }
+
+    /**
+     * Mengambil notifikasi milik user yang sedang login.
+     *
+     * Hanya surat BIASA yang ditampilkan.
+     *
+     * Rahasia dan Sangat Rahasia tidak akan keluar
+     * dari query ini.
+     */
+    public static function forUser(int $userId): array
     {
         $stmt = Database::connection()->prepare(
             "SELECT
-                ol.id,
+                n.id,
+                n.user_id,
+                n.letter_id,
+                n.is_read,
+                n.created_at,
+
                 ol.letter_number,
                 ol.subject,
                 ol.recipient,
-                ol.created_at,
-                ol.status,
-                COALESCE(ns.is_read, 0) AS is_read
-             FROM outgoing_letters ol
-             LEFT JOIN notification_states ns
-                ON ns.outgoing_letter_id = ol.id
-                AND ns.user_id = ?
-             WHERE ol.sensitivity = 'BIASA'
-               AND (ns.deleted_at IS NULL)
-             ORDER BY ol.id DESC
+                ol.sensitivity,
+                ol.created_at AS letter_created_at
+
+             FROM notifications n
+
+             INNER JOIN outgoing_letters ol
+                ON ol.id = n.letter_id
+
+             WHERE n.user_id = ?
+               AND n.is_deleted = 0
+               AND ol.sensitivity = 'BIASA'
+
+             ORDER BY n.id DESC
+
              LIMIT 50"
         );
 
-        $stmt->execute([(int) Auth::id()]);
+        $stmt->execute([$userId]);
 
         return $stmt->fetchAll();
     }
 
-    public static function unreadCount(): int
+    /**
+     * Jumlah notifikasi yang belum dibaca.
+     */
+    public static function unreadCount(int $userId): int
     {
         $stmt = Database::connection()->prepare(
             "SELECT COUNT(*)
-             FROM outgoing_letters ol
-             LEFT JOIN notification_states ns
-                ON ns.outgoing_letter_id = ol.id
-                AND ns.user_id = ?
-             WHERE ol.sensitivity = 'BIASA'
-               AND COALESCE(ns.is_read, 0) = 0
-               AND ns.deleted_at IS NULL"
+             FROM notifications n
+             INNER JOIN outgoing_letters ol
+                ON ol.id = n.letter_id
+             WHERE n.user_id = ?
+               AND n.is_deleted = 0
+               AND n.is_read = 0
+               AND ol.sensitivity = 'BIASA'"
         );
 
-        $stmt->execute([(int) Auth::id()]);
+        $stmt->execute([$userId]);
 
         return (int) $stmt->fetchColumn();
     }
 
-    public static function markAsRead(int $letterId): void
-    {
+    /**
+     * Tandai notifikasi sebagai telah dibaca.
+     */
+    public static function markAsRead(
+        int $notificationId,
+        int $userId
+    ): bool {
         $stmt = Database::connection()->prepare(
-            "INSERT INTO notification_states
-                (user_id, outgoing_letter_id, is_read)
-             VALUES (?, ?, 1)
-             ON DUPLICATE KEY UPDATE
-                is_read = 1,
-                deleted_at = NULL"
+            "UPDATE notifications n
+             INNER JOIN outgoing_letters ol
+                ON ol.id = n.letter_id
+
+             SET
+                n.is_read = 1,
+                n.read_at = NOW()
+
+             WHERE n.id = ?
+               AND n.user_id = ?
+               AND n.is_deleted = 0
+               AND ol.sensitivity = 'BIASA'"
         );
 
         $stmt->execute([
-            (int) Auth::id(),
-            $letterId
+            $notificationId,
+            $userId
         ]);
+
+        return $stmt->rowCount() > 0;
     }
 
-    public static function delete(int $letterId): void
-    {
+    /**
+     * Menghapus notifikasi dari daftar user.
+     *
+     * Surat asli TIDAK dihapus.
+     * Hanya notifikasinya yang disembunyikan.
+     */
+    public static function delete(
+        int $notificationId,
+        int $userId
+    ): bool {
         $stmt = Database::connection()->prepare(
-            "INSERT INTO notification_states
-                (user_id, outgoing_letter_id, is_read, deleted_at)
-             VALUES (?, ?, 1, NOW())
-             ON DUPLICATE KEY UPDATE
-                deleted_at = NOW()"
+            "UPDATE notifications
+             SET
+                is_deleted = 1,
+                deleted_at = NOW()
+
+             WHERE id = ?
+               AND user_id = ?
+               AND is_deleted = 0"
         );
 
         $stmt->execute([
-            (int) Auth::id(),
-            $letterId
+            $notificationId,
+            $userId
         ]);
+
+        return $stmt->rowCount() > 0;
     }
 }

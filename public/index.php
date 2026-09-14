@@ -62,6 +62,24 @@ $router->get('/api/classification-groups', [OutgoingLetterController::class, 'cl
 $router->get('/api/classification-items', [OutgoingLetterController::class, 'classificationItems']);
 $router->get('/api/classification-search', [OutgoingLetterController::class, 'classificationSearch']);
 
+// Notifications
+$router->get(
+    '/api/notifications',
+    [NotificationController::class, 'index']
+);
+
+$router->post(
+    '/api/notifications/{id}/read',
+    [NotificationController::class, 'read']
+);
+
+$router->post(
+    '/api/notifications/{id}/delete',
+    [NotificationController::class, 'delete']
+);
+
+$router->get('/incoming', [IncomingLetterController::class, 'index']);
+
 $router->get('/api/notifications', [NotificationController::class, 'index']);
 $router->post('/api/notifications/{id}/read', [NotificationController::class, 'read']);
 $router->post('/api/notifications/{id}/delete', [NotificationController::class, 'delete']);

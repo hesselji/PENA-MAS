@@ -7,9 +7,11 @@ use App\Core\Env;
 use App\Core\View;
 use App\Models\AuditLog;
 use App\Models\MasterData;
+use App\Models\Notification;
 use App\Models\OutgoingLetter;
 use App\Models\User;
 use App\Services\LetterNumberGenerator;
+
 
 final class OutgoingLetterController
 {
@@ -168,9 +170,23 @@ final class OutgoingLetterController
 
         try {
             $results=(new LetterNumberGenerator())->generateBatch($input,$recipients);
-            $count=count($results);
-            $first=$results[0];
-            $last=$results[$count-1];
+$count=count($results);
+$first=$results[0];
+$last=$results[$count-1];
+
+/*
+ * Buat notifikasi hanya untuk surat BIASA.
+ *
+ * RAHASIA dan SANGAT_RAHASIA tidak dibuatkan
+ * notifikasi sama sekali.
+ */
+if ($input['sensitivity'] === 'BIASA') {
+    foreach ($results as $result) {
+        Notification::createForLetter(
+            (int) $result['id']
+        );
+    }
+}
 
             AuditLog::write(Auth::id(),$count > 1 ? 'GENERATE_BATCH' : 'GENERATE_NUMBER','outgoing_letter',$first['id'],[
                 'count'=>$count,
