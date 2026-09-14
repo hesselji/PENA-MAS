@@ -14,7 +14,7 @@ $recipientRoleLabels = ['ADMIN' => 'Administrator', 'USER' => 'Pengguna Surat Ke
         <h1>Buat nomor surat keluar</h1>
         <p>Lengkapi informasi surat. Nomor urut untuk kode unit 62710 dan 62711 dikelola terpisah sesuai jenis surat.</p>
     </div>
-    <div class="heading-hint"><span><?= ui_icon('shield') ?></span><div><strong>Nomor urut terjaga</strong><small>Sistem memastikan setiap nomor tersimpan dengan urutan yang benar dan tidak ganda.</small></div></div>
+    <div class="heading-hint"><span><?= ui_icon('shield') ?></span><div><strong>Powered By Sequence Aman</strong><small>Sistem memastikan setiap nomor tersimpan dengan urutan yang benar dan tidak ganda.</small></div></div>
 </section>
 
 <div class="create-layout">
