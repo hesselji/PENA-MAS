@@ -7,6 +7,7 @@ use App\Core\Env;
 use App\Core\View;
 use App\Models\AuditLog;
 use App\Models\MasterData;
+use App\Models\Notification;
 use App\Models\OutgoingLetter;
 use App\Models\User;
 use App\Services\LetterNumberGenerator;
@@ -180,6 +181,43 @@ final class OutgoingLetterController
                 'sensitivity'=>$input['sensitivity'],
                 'letter_ids'=>array_column($results,'id'),
             ]);
+
+            // Notifikasi dibuat setelah transaksi nomor surat berhasil commit.
+            // Kegagalan notifikasi tidak boleh membatalkan surat yang sudah sah tersimpan.
+            try {
+                $recipientUserIds = Notification::recipientIdsForOutgoing(
+                    $input['sensitivity'],
+                    (int) Auth::id()
+                );
+
+                if ($recipientUserIds) {
+                    $creatorName = display_user_name(Auth::user()['name'] ?? 'Pengguna');
+
+                    if ($count === 1) {
+                        $notificationTitle = 'Surat baru dibuat';
+                        $notificationMessage = $creatorName . ' membuat ' . $first['letter_number'] . ' - ' . $input['subject'] . '.';
+                        $notificationUrl = '/letters/' . $first['id'];
+                        $notificationEntityId = (int) $first['id'];
+                    } else {
+                        $notificationTitle = $count . ' surat baru dibuat';
+                        $notificationMessage = $creatorName . ' membuat ' . $count . ' surat baru, dari ' . $first['letter_number'] . ' sampai ' . $last['letter_number'] . '.';
+                        $notificationUrl = '/letters';
+                        $notificationEntityId = null;
+                    }
+
+                    Notification::createForUsers(
+                        $recipientUserIds,
+                        'OUTGOING_CREATED',
+                        $notificationTitle,
+                        $notificationMessage,
+                        $notificationUrl,
+                        'outgoing_letter',
+                        $notificationEntityId
+                    );
+                }
+            } catch (\Throwable $notificationError) {
+                error_log('[PENA MAS][notifications] ' . $notificationError->getMessage());
+            }
 
             unset($_SESSION['old']);
             if ($count === 1) {

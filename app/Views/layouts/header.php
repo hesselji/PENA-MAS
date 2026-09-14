@@ -2,6 +2,7 @@
 use App\Core\Auth;
 use App\Core\Csrf;
 use App\Core\Env;
+use App\Models\Notification;
 
 $me = Auth::user();
 $success = flash('flash_success');
@@ -19,6 +20,17 @@ $roleLabel = $roleLabels[$me['role'] ?? ''] ?? ($me['role'] ?? '');
 $searchIncoming = Auth::isIncoming() || str_starts_with($path, '/incoming');
 $searchAction = $searchIncoming ? '/incoming' : '/letters';
 $searchPlaceholder = $searchIncoming ? 'Cari surat masuk, asal, perihal...' : 'Cari nomor, perihal, tujuan...';
+
+$notificationItems = [];
+$notificationUnread = 0;
+if ($me) {
+    try {
+        $notificationItems = Notification::recentForUser((int)$me['id'], 8);
+        $notificationUnread = Notification::unreadCount((int)$me['id']);
+    } catch (Throwable $notificationError) {
+        error_log('[PENA MAS][notifications] ' . $notificationError->getMessage());
+    }
+}
 ?><!doctype html>
 <html lang="id" data-theme="dark">
 <head>
@@ -30,7 +42,7 @@ $searchPlaceholder = $searchIncoming ? 'Cari surat masuk, asal, perihal...' : 'C
     <meta name="description" content="PENA MAS - Penomoran Agenda dan Manajemen Arsip Surat">
     <title><?= e($appName) ?></title>
     <link rel="icon" href="/assets/images/penamas-icon.png" type="image/png">
-    <link rel="stylesheet" href="/assets/css/style.css?v=20260914-production-v08">
+    <link rel="stylesheet" href="/assets/css/style.css?v=20260914-notifications-v1">
 </head>
 <body class="<?= $me ? 'app-body' : 'auth-body' ?>">
 <?php if ($me): ?>
@@ -90,114 +102,155 @@ $searchPlaceholder = $searchIncoming ? 'Cari surat masuk, asal, perihal...' : 'C
             </div>
             <div class="topbar-actions">
                 <button class="icon-btn" type="button" data-theme-toggle aria-label="Ganti tema" title="Ganti tema"><span data-theme-icon><?= ui_icon('moon') ?></span></button>
-               <div class="profile-menu" data-profile-menu>
 
-    <button
-        class="profile-chip profile-trigger"
-        type="button"
-        data-profile-trigger
-        aria-expanded="false"
-        aria-haspopup="true"
-    >
-        <div class="avatar">
-            <?= e(user_initials(display_user_name($me['name']))) ?>
-        </div>
-
-        <div class="profile-trigger-copy">
-            <strong>
-                <?= e(display_user_name($me['name'])) ?>
-            </strong>
-
-            <small>
-                <?= e($roleLabel) ?>
-            </small>
-        </div>
-
-        <span
-            class="profile-chevron"
-            aria-hidden="true"
-        >
-            <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-            >
-                <path d="m6 9 6 6 6-6"/>
-            </svg>
-        </span>
-    </button>
-
-
-    <div
-        class="profile-dropdown"
-        data-profile-dropdown
-        aria-hidden="true"
-    >
-
-        <div class="profile-dropdown-head">
-
-            <div class="avatar profile-dropdown-avatar">
-                <?= e(user_initials(display_user_name($me['name']))) ?>
-            </div>
-
-            <div>
-                <strong>
-                    <?= e(display_user_name($me['name'])) ?>
-                </strong>
-
-                <small>
-                    <?= e($roleLabel) ?>
-                </small>
-            </div>
-
-        </div>
-
-
-        <div class="profile-dropdown-divider"></div>
-
-
-        <form
-            method="post"
-            action="/logout"
-            class="profile-logout-form"
-        >
-            <?= csrf_field() ?>
-
-            <button
-                class="profile-logout-action"
-                type="submit"
-            >
-                <span class="profile-logout-icon">
-                    <?= ui_icon('logout') ?>
-                </span>
-
-                <span class="profile-logout-copy">
-                    <strong>Keluar</strong>
-                    <small>Akhiri sesi PENA MAS</small>
-                </span>
-
-                <span class="profile-logout-arrow">
-                    <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
+                <div class="notification-menu" data-notification-menu>
+                    <button
+                        class="icon-btn notification-trigger"
+                        type="button"
+                        data-notification-trigger
+                        aria-label="Notifikasi"
+                        title="Notifikasi"
+                        aria-expanded="false"
+                        aria-haspopup="true"
                     >
-                        <path d="M5 12h14"/>
-                        <path d="m13 6 6 6-6 6"/>
-                    </svg>
-                </span>
-            </button>
-        </form>
+                        <?= ui_icon('bell') ?>
+                        <span
+                            class="notification-unread-dot<?= $notificationUnread > 0 ? ' is-visible' : '' ?>"
+                            data-notification-dot
+                            aria-hidden="true"
+                        ></span>
+                    </button>
 
-    </div>
+                    <div
+                        class="notification-dropdown"
+                        data-notification-dropdown
+                        aria-hidden="true"
+                    >
+                        <div class="notification-dropdown-head">
+                            <div>
+                                <strong>Notifikasi</strong>
+                                <small data-notification-summary>
+                                    <?= $notificationUnread > 0 ? e($notificationUnread . ' belum dibaca') : 'Tidak ada notifikasi baru' ?>
+                                </small>
+                            </div>
 
-</div>
+                            <button
+                                type="button"
+                                class="notification-mark-all"
+                                data-notification-read-all
+                                <?= $notificationUnread > 0 ? '' : 'hidden' ?>
+                            >
+                                Tandai semua dibaca
+                            </button>
+                        </div>
+
+                        <div class="notification-list" data-notification-list>
+                            <?php if ($notificationItems): ?>
+                                <?php foreach ($notificationItems as $notification): ?>
+                                    <article class="notification-item<?= empty($notification['read_at']) ? ' is-unread' : '' ?>" data-notification-item="<?= (int)$notification['id'] ?>">
+                                        <button
+                                            type="button"
+                                            class="notification-item-main"
+                                            data-notification-open
+                                            data-notification-id="<?= (int)$notification['id'] ?>"
+                                            data-notification-url="<?= e($notification['url'] ?: '#') ?>"
+                                        >
+                                            <span class="notification-item-icon"><?= ui_icon('mail') ?></span>
+                                            <span class="notification-item-copy">
+                                                <strong><?= e($notification['title']) ?></strong>
+                                                <span><?= e($notification['message']) ?></span>
+                                                <small><?= e(format_date_id($notification['created_at'], true)) ?></small>
+                                            </span>
+                                            <span class="notification-item-dot" aria-hidden="true"></span>
+                                        </button>
+                                        <?php if (empty($notification['read_at'])): ?>
+                                            <button
+                                                type="button"
+                                                class="notification-item-read"
+                                                data-notification-read
+                                                data-notification-id="<?= (int)$notification['id'] ?>"
+                                            >
+                                                <?= ui_icon('check') ?>
+                                                <span>Tandai dibaca</span>
+                                            </button>
+                                        <?php endif; ?>
+                                    </article>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <div class="notification-empty" data-notification-empty>
+                                    <span><?= ui_icon('bell') ?></span>
+                                    <strong>Belum ada notifikasi</strong>
+                                    <small>Informasi terbaru akan muncul di sini.</small>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+
+                        <div class="notification-dropdown-footer">
+                            <button
+                                type="button"
+                                class="notification-clear"
+                                data-notification-clear
+                                <?= $notificationItems ? '' : 'hidden' ?>
+                            >
+                                <?= ui_icon('refresh') ?>
+                                <span>Bersihkan notifikasi</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-menu" data-profile-menu>
+                    <button
+                        class="profile-chip profile-trigger"
+                        type="button"
+                        data-profile-trigger
+                        aria-expanded="false"
+                        aria-haspopup="true"
+                    >
+                        <div class="avatar">
+                            <?= e(user_initials(display_user_name($me['name']))) ?>
+                        </div>
+
+                        <div class="profile-trigger-copy">
+                            <strong><?= e(display_user_name($me['name'])) ?></strong>
+                            <small><?= e($roleLabel) ?></small>
+                        </div>
+
+                        <span class="profile-chevron" aria-hidden="true">
+                            <?= ui_icon('chevron-down') ?>
+                        </span>
+                    </button>
+
+                    <div
+                        class="profile-dropdown"
+                        data-profile-dropdown
+                        aria-hidden="true"
+                    >
+                        <div class="profile-dropdown-head">
+                            <div class="avatar profile-dropdown-avatar">
+                                <?= e(user_initials(display_user_name($me['name']))) ?>
+                            </div>
+                            <div>
+                                <strong><?= e(display_user_name($me['name'])) ?></strong>
+                                <small><?= e($roleLabel) ?></small>
+                            </div>
+                        </div>
+
+                        <div class="profile-dropdown-divider"></div>
+
+                        <form method="post" action="/logout" class="profile-logout-form">
+                            <?= csrf_field() ?>
+                            <button class="profile-logout-action" type="submit">
+                                <span class="profile-logout-icon"><?= ui_icon('logout') ?></span>
+                                <span class="profile-logout-copy">
+                                    <strong>Keluar</strong>
+                                    <small>Akhiri sesi PENA MAS</small>
+                                </span>
+                                <span class="profile-logout-arrow"><?= ui_icon('arrow-right') ?></span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
             </div>
         </header>
 

@@ -15,12 +15,14 @@ PENA MAS membantu penomoran surat keluar, agenda surat keluar dan masuk, klasifi
 - Dashboard sesuai hak akses pengguna.
 - Pengelolaan pengguna dan pengaturan ulang password oleh Administrator.
 - Tampilan responsif untuk komputer dan perangkat seluler.
+- Pusat notifikasi pada ikon lonceng, penanda notifikasi baru, tandai dibaca, dan bersihkan notifikasi.
 
 ## Persiapan Produksi
 
 1. Salin `.env.production.example` menjadi `.env` pada server tujuan.
 2. Isi alamat aplikasi dan koneksi penyimpanan data sesuai lingkungan server.
 3. Siapkan struktur data menggunakan `database/mysql_schema_seed.sql` untuk instalasi baru.
+   Untuk instalasi PENA MAS yang sudah berjalan, jalankan sekali `database/migrations/20260914_add_notifications.sql` agar fitur notifikasi aktif.
 4. Untuk instalasi baru tanpa akun, buat Administrator pertama melalui terminal:
 
    ```bash

@@ -1,6 +1,7 @@
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS=0;
 
+DROP TABLE IF EXISTS notifications;
 DROP TABLE IF EXISTS audit_logs;
 DROP TABLE IF EXISTS incoming_letters;
 DROP TABLE IF EXISTS outgoing_letters;
@@ -37,6 +38,22 @@ CREATE TABLE users (
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_users_deleted_at (deleted_at),
     CONSTRAINT fk_users_team FOREIGN KEY(work_team_id) REFERENCES work_teams(id)
+) ENGINE=InnoDB;
+
+CREATE TABLE notifications (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNSIGNED NOT NULL,
+    type VARCHAR(60) NOT NULL,
+    title VARCHAR(160) NOT NULL,
+    message TEXT NOT NULL,
+    url VARCHAR(255) NULL,
+    entity_type VARCHAR(60) NULL,
+    entity_id BIGINT UNSIGNED NULL,
+    read_at DATETIME NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_notifications_user_created (user_id, created_at),
+    INDEX idx_notifications_user_read (user_id, read_at),
+    CONSTRAINT fk_notifications_user FOREIGN KEY(user_id) REFERENCES users(id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE numbering_rules (

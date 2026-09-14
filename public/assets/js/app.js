@@ -995,3 +995,267 @@
   );
 
 })();
+/* ================================================================
+   NOTIFICATION CENTER
+   Polling ringan agar notifikasi baru muncul tanpa reload halaman.
+   ================================================================ */
+(() => {
+  'use strict';
+
+  const menu = document.querySelector('[data-notification-menu]');
+  if (!menu) return;
+
+  const trigger = menu.querySelector('[data-notification-trigger]');
+  const dropdown = menu.querySelector('[data-notification-dropdown]');
+  const list = menu.querySelector('[data-notification-list]');
+  const dot = menu.querySelector('[data-notification-dot]');
+  const summary = menu.querySelector('[data-notification-summary]');
+  const markAllButton = menu.querySelector('[data-notification-read-all]');
+  const clearButton = menu.querySelector('[data-notification-clear]');
+  const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
+
+  if (!trigger || !dropdown || !list) return;
+
+  let lastUnreadCount = Number(dot?.classList.contains('is-visible') ? 1 : 0);
+  let refreshInFlight = false;
+
+  const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[char]));
+
+  const safeInternalUrl = (value) => {
+    const url = String(value || '');
+    return url.startsWith('/') && !url.startsWith('//') ? url : '#';
+  };
+
+  const setOpen = (open) => {
+    menu.classList.toggle('is-open', open);
+    trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    dropdown.setAttribute('aria-hidden', open ? 'false' : 'true');
+
+    if (open) {
+      document.querySelector('[data-profile-menu]')?.classList.remove('is-open');
+      document.querySelector('[data-profile-trigger]')?.setAttribute('aria-expanded', 'false');
+      document.querySelector('[data-profile-dropdown]')?.setAttribute('aria-hidden', 'true');
+    }
+  };
+
+  const updateUnreadState = (count, animate = false) => {
+    const unread = Math.max(0, Number(count) || 0);
+
+    dot?.classList.toggle('is-visible', unread > 0);
+    markAllButton?.toggleAttribute('hidden', unread === 0);
+
+    if (summary) {
+      summary.textContent = unread > 0
+        ? `${unread} belum dibaca`
+        : 'Tidak ada notifikasi baru';
+    }
+
+    if (animate && unread > lastUnreadCount) {
+      trigger.classList.remove('has-new-notification');
+      void trigger.offsetWidth;
+      trigger.classList.add('has-new-notification');
+      window.setTimeout(() => trigger.classList.remove('has-new-notification'), 900);
+    }
+
+    lastUnreadCount = unread;
+  };
+
+  const renderItems = (items) => {
+    if (!Array.isArray(items) || items.length === 0) {
+      list.innerHTML = `
+        <div class="notification-empty" data-notification-empty>
+          <span>
+            <svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path>
+              <path d="M10 21h4"></path>
+            </svg>
+          </span>
+          <strong>Belum ada notifikasi</strong>
+          <small>Informasi terbaru akan muncul di sini.</small>
+        </div>`;
+      clearButton?.setAttribute('hidden', '');
+      return;
+    }
+
+    list.innerHTML = items.map((item) => {
+      const id = Number(item.id) || 0;
+      const isUnread = !item.is_read;
+      const url = safeInternalUrl(item.url);
+
+      return `
+        <article class="notification-item${isUnread ? ' is-unread' : ''}" data-notification-item="${id}">
+          <button
+            type="button"
+            class="notification-item-main"
+            data-notification-open
+            data-notification-id="${id}"
+            data-notification-url="${escapeHtml(url)}"
+          >
+            <span class="notification-item-icon">
+              <svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+                <path d="m3 7 9 6 9-6"></path>
+              </svg>
+            </span>
+            <span class="notification-item-copy">
+              <strong>${escapeHtml(item.title)}</strong>
+              <span>${escapeHtml(item.message)}</span>
+              <small>${escapeHtml(item.time_label)}</small>
+            </span>
+            <span class="notification-item-dot" aria-hidden="true"></span>
+          </button>
+          ${isUnread ? `
+            <button
+              type="button"
+              class="notification-item-read"
+              data-notification-read
+              data-notification-id="${id}"
+            >
+              <svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="m5 12 4 4L19 6"></path>
+              </svg>
+              <span>Tandai dibaca</span>
+            </button>` : ''}
+        </article>`;
+    }).join('');
+
+    clearButton?.removeAttribute('hidden');
+  };
+
+  const apiRequest = async (url, options = {}) => {
+    const response = await fetch(url, {
+      credentials: 'same-origin',
+      headers: {
+        'Accept': 'application/json',
+        ...(options.method && options.method !== 'GET' ? {'X-CSRF-Token': csrfToken} : {}),
+        ...(options.headers || {})
+      },
+      ...options
+    });
+
+    let json = null;
+    try {
+      json = await response.json();
+    } catch (_) {
+      json = null;
+    }
+
+    if (!response.ok || !json?.success) {
+      throw new Error(json?.message || 'Notifikasi belum dapat diproses.');
+    }
+
+    return json;
+  };
+
+  const refreshNotifications = async (animate = true) => {
+    if (refreshInFlight || document.hidden) return;
+    refreshInFlight = true;
+
+    try {
+      const json = await apiRequest('/api/notifications?limit=8');
+      renderItems(json.data);
+      updateUnreadState(json.unread_count, animate);
+    } catch (_) {
+      // Polling tidak perlu mengganggu halaman bila koneksi sedang bermasalah.
+    } finally {
+      refreshInFlight = false;
+    }
+  };
+
+  const markRead = async (id) => {
+    if (!id) return;
+    const json = await apiRequest(`/api/notifications/${encodeURIComponent(id)}/read`, {
+      method: 'POST'
+    });
+    updateUnreadState(json.unread_count, false);
+  };
+
+  trigger.addEventListener('click', async (event) => {
+    event.stopPropagation();
+    const willOpen = !menu.classList.contains('is-open');
+    setOpen(willOpen);
+    if (willOpen) await refreshNotifications(false);
+  });
+
+  dropdown.addEventListener('click', (event) => {
+    event.stopPropagation();
+  });
+
+  list.addEventListener('click', async (event) => {
+    const readButton = event.target.closest('[data-notification-read]');
+    if (readButton) {
+      const id = Number(readButton.dataset.notificationId || 0);
+      readButton.disabled = true;
+      try {
+        await markRead(id);
+        await refreshNotifications(false);
+      } catch (_) {
+        readButton.disabled = false;
+      }
+      return;
+    }
+
+    const openButton = event.target.closest('[data-notification-open]');
+    if (!openButton) return;
+
+    const id = Number(openButton.dataset.notificationId || 0);
+    const targetUrl = safeInternalUrl(openButton.dataset.notificationUrl);
+
+    try {
+      await markRead(id);
+    } catch (_) {
+      // Tetap buka surat walaupun update status baca gagal.
+    }
+
+    if (targetUrl !== '#') {
+      window.location.href = targetUrl;
+    } else {
+      await refreshNotifications(false);
+    }
+  });
+
+  markAllButton?.addEventListener('click', async () => {
+    markAllButton.disabled = true;
+    try {
+      await apiRequest('/api/notifications/read-all', {method: 'POST'});
+      await refreshNotifications(false);
+    } finally {
+      markAllButton.disabled = false;
+    }
+  });
+
+  clearButton?.addEventListener('click', async () => {
+    if (!window.confirm('Bersihkan semua notifikasi?')) return;
+
+    clearButton.disabled = true;
+    try {
+      await apiRequest('/api/notifications/clear', {method: 'POST'});
+      renderItems([]);
+      updateUnreadState(0, false);
+    } finally {
+      clearButton.disabled = false;
+    }
+  });
+
+  document.addEventListener('click', () => setOpen(false));
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && menu.classList.contains('is-open')) {
+      setOpen(false);
+      trigger.focus();
+    }
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) refreshNotifications(true);
+  });
+
+  // Polling 15 detik: cukup cepat untuk penggunaan kantor dan tetap ringan.
+  window.setInterval(() => refreshNotifications(true), 15000);
+})();
