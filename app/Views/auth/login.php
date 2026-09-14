@@ -22,30 +22,30 @@
     <section class="pm-login-hero">
 
         <!-- Brand -->
-<header class="pm-login-brand">
+        <header class="pm-login-brand">
 
-    <img
-        src="/assets/images/penamas-icon.png"
-        alt="Logo PENA MAS"
-    >
+            <img
+                src="/assets/images/penamas-icon.png"
+                alt="Logo PENA MAS"
+            >
 
-    <div>
+            <div>
 
-        <strong>
-            PENA MAS
-        </strong>
+                <strong>
+                    PENA MAS
+                </strong>
 
-        <small>
-            Penomoran Agenda dan Manajemen Arsip Surat
-        </small>
+                <small>
+                    Penomoran Agenda dan Manajemen Arsip Surat
+                </small>
 
-        <span class="pm-login-agency">
-            BADAN PUSAT STATISTIK KOTA PALANGKA RAYA
-        </span>
+                <span class="pm-login-agency">
+                    BADAN PUSAT STATISTIK KOTA PALANGKA RAYA
+                </span>
 
-    </div>
+            </div>
 
-</header>
+        </header>
 
 
         <!-- Main copy -->
@@ -347,13 +347,68 @@
             ></div>
 
 
-            <!-- Brand inside card -->
+            <!-- =================================================
+                 USER ICON INSIDE LOGIN CARD
+                 Hanya bagian ini yang berubah.
+                 ================================================= -->
             <div class="pm-login-card-brand">
 
-                <img
-                    src="/assets/images/penamas-icon.png"
-                    alt="Logo PENA MAS"
+                <span
+                    aria-hidden="true"
+                    style="
+                        width: 43px;
+                        height: 49px;
+                        flex: 0 0 43px;
+
+                        display: grid;
+                        place-items: center;
+
+                        border-radius: 12px;
+
+                        color: #37c7ff;
+
+                        background:
+                            linear-gradient(
+                                145deg,
+                                rgba(20, 126, 190, .22),
+                                rgba(6, 74, 126, .12)
+                            );
+
+                        border:
+                            1px solid
+                            rgba(75, 191, 246, .30);
+
+                        box-shadow:
+                            inset 0 1px 0
+                            rgba(255, 255, 255, .08),
+                            0 8px 20px
+                            rgba(0, 115, 190, .10);
+                    "
                 >
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        style="
+                            width: 25px;
+                            height: 25px;
+                        "
+                    >
+                        <circle
+                            cx="12"
+                            cy="8"
+                            r="4"
+                        />
+
+                        <path
+                            d="M4 21a8 8 0 0 1 16 0"
+                        />
+                    </svg>
+                </span>
+
 
                 <div>
 
@@ -489,7 +544,7 @@
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
                             >
-                                <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/>
+                                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/>
                                 <circle cx="12" cy="12" r="3"/>
                             </svg>
 
@@ -553,7 +608,7 @@
             </div>
 
         </div>
-       
+
     </section>
 
 </section>
