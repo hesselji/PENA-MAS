@@ -11036,3 +11036,349 @@ backdrop-filter:
         animation: none !important;
     }
 }
+
+/* ================================================================
+   MOBILE TOPBAR FIX
+   Search tidak boleh menimpa Dark Mode / Notifikasi / Profil
+   ================================================================ */
+
+@media (max-width: 700px) {
+
+    .topbar {
+        width: 100%;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 8px !important;
+
+        padding:
+            0 10px !important;
+
+        overflow: visible;
+    }
+
+
+    /* ============================================================
+       AREA KIRI:
+       Hamburger + pencarian
+       ============================================================ */
+
+    .topbar-left {
+        flex:
+            1 1 auto !important;
+
+        width:
+            auto !important;
+
+        min-width:
+            0 !important;
+
+        max-width:
+            100%;
+
+        display:
+            grid !important;
+
+        grid-template-columns:
+            42px minmax(0, 1fr);
+
+        align-items:
+            center;
+
+        gap:
+            8px !important;
+
+        overflow:
+            hidden;
+    }
+
+
+    .topbar-left .mobile-menu {
+        width:
+            42px;
+
+        height:
+            42px;
+
+        min-width:
+            42px;
+
+        flex:
+            0 0 42px;
+    }
+
+
+    /* ============================================================
+       SEARCH
+       ============================================================ */
+
+    .topbar-left .global-search {
+        width:
+            100% !important;
+
+        max-width:
+            100% !important;
+
+        min-width:
+            0 !important;
+
+        height:
+            42px;
+
+        margin:
+            0 !important;
+
+        padding:
+            0 11px !important;
+
+        overflow:
+            hidden;
+
+        flex:
+            none !important;
+    }
+
+
+    .topbar-left .global-search input {
+        width:
+            100% !important;
+
+        min-width:
+            0 !important;
+
+        max-width:
+            100% !important;
+
+        overflow:
+            hidden;
+
+        white-space:
+            nowrap;
+
+        text-overflow:
+            ellipsis;
+    }
+
+
+    .topbar-left .global-search kbd {
+        display:
+            none !important;
+    }
+
+
+    /* ============================================================
+       AREA KANAN:
+       Dark Mode + Notifikasi + Avatar
+       Tidak boleh mengecil / tertimpa search
+       ============================================================ */
+
+    .topbar-actions {
+        position:
+            relative;
+
+        z-index:
+            20;
+
+        flex:
+            0 0 auto !important;
+
+        width:
+            auto !important;
+
+        min-width:
+            max-content;
+
+        display:
+            flex !important;
+
+        align-items:
+            center;
+
+        gap:
+            6px !important;
+
+        margin-left:
+            0 !important;
+
+        background:
+            transparent;
+    }
+
+
+    .topbar-actions > * {
+        flex:
+            0 0 auto;
+    }
+
+
+    .topbar-actions .icon-btn {
+        flex:
+            0 0 42px;
+
+        width:
+            42px;
+
+        height:
+            42px;
+    }
+
+
+    /*
+     * Notification harus selalu berada
+     * di atas elemen search.
+     */
+    .notification-menu {
+        position:
+            relative;
+
+        z-index:
+            30;
+
+        flex:
+            0 0 auto;
+    }
+
+
+    .notification-trigger {
+        position:
+            relative;
+
+        z-index:
+            31;
+    }
+
+
+    /*
+     * Profil mobile hanya avatar.
+     */
+    .profile-menu {
+        position:
+            relative;
+
+        z-index:
+            30;
+
+        flex:
+            0 0 auto;
+    }
+
+
+    .profile-trigger.profile-chip {
+        width:
+            42px;
+
+        height:
+            42px;
+
+        min-width:
+            42px;
+
+        padding:
+            2px !important;
+
+        display:
+            grid;
+
+        place-items:
+            center;
+    }
+
+
+    .profile-trigger .avatar {
+        margin:
+            0;
+    }
+
+
+    .profile-trigger-copy,
+    .profile-chevron {
+        display:
+            none !important;
+    }
+
+}
+
+
+/* ================================================================
+   MOBILE LEBIH KECIL
+   ================================================================ */
+
+@media (max-width: 480px) {
+
+    .topbar {
+        gap:
+            6px !important;
+
+        padding:
+            0 8px !important;
+    }
+
+
+    .topbar-left {
+        grid-template-columns:
+            40px minmax(0, 1fr);
+
+        gap:
+            6px !important;
+    }
+
+
+    .topbar-left .mobile-menu {
+        width:
+            40px;
+
+        height:
+            40px;
+
+        min-width:
+            40px;
+    }
+
+
+    .topbar-left .global-search {
+        height:
+            40px;
+
+        padding:
+            0 9px !important;
+    }
+
+
+    .topbar-left .global-search input {
+        font-size:
+            12px !important;
+    }
+
+
+    .topbar-actions {
+        gap:
+            5px !important;
+    }
+
+
+    .topbar-actions .icon-btn {
+        width:
+            40px;
+
+        height:
+            40px;
+
+        flex-basis:
+            40px;
+    }
+
+
+    .profile-trigger.profile-chip {
+        width:
+            40px;
+
+        height:
+            40px;
+
+        min-width:
+            40px;
+    }
+
+}
