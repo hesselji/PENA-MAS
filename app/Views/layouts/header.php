@@ -89,7 +89,38 @@ $searchPlaceholder = $searchIncoming ? 'Cari surat masuk, asal, perihal...' : 'C
             </div>
             <div class="topbar-actions">
                 <button class="icon-btn" type="button" data-theme-toggle aria-label="Ganti tema" title="Ganti tema"><span data-theme-icon><?= ui_icon('moon') ?></span></button>
-                <button class="icon-btn notification-btn" type="button" aria-label="Notifikasi" title="Notifikasi"><?= ui_icon('bell') ?><i></i></button>
+                <div class="notification-wrap">
+    <button
+        class="icon-btn notification-btn"
+        type="button"
+        aria-label="Notifikasi"
+        title="Notifikasi"
+        id="notificationButton"
+    >
+        <?= ui_icon('bell') ?>
+        <i id="notificationDot"></i>
+    </button>
+
+    <div
+        class="notification-panel"
+        id="notificationPanel"
+        hidden
+    >
+        <div class="notification-header">
+            <div>
+                <strong>Notifikasi</strong>
+                <small id="notificationSummary">
+                    Memuat notifikasi...
+                </small>
+            </div>
+        </div>
+
+        <div
+            class="notification-list"
+            id="notificationList"
+        ></div>
+    </div>
+</div>
                 <div class="profile-chip" id="profileChip">
     <div class="avatar"><?= e(user_initials($me['name'])) ?></div>
     <div><strong><?= e($me['name']) ?></strong><small><?= e($me['role']) ?></small></div>

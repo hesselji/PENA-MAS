@@ -602,3 +602,502 @@ html[data-theme="light"]{
     object-fit: contain;
     filter: drop-shadow(0 4px 12px rgba(107, 33, 168, 0.4));
 }
+/* =========================================================
+   NOTIFICATION
+========================================================= */
+
+.notification-wrap{
+    position:relative;
+    display:flex;
+    align-items:center;
+}
+
+.notification-btn{
+    position:relative;
+}
+
+.notification-btn i{
+    position:absolute;
+    top:7px;
+    right:7px;
+    width:7px;
+    height:7px;
+    background:var(--bps-orange);
+    border-radius:50%;
+    box-shadow:0 0 0 2px var(--surface);
+}
+
+.notification-btn i[hidden]{
+    display:none !important;
+}
+
+.notification-panel{
+    position:absolute;
+    top:calc(100% + 12px);
+    right:0;
+    width:390px;
+    max-width:calc(100vw - 30px);
+    max-height:min(560px, calc(100vh - 95px));
+
+    display:flex;
+    flex-direction:column;
+
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:16px;
+
+    box-shadow:
+        0 20px 60px rgba(0,0,0,.38),
+        0 4px 16px rgba(0,0,0,.18);
+
+    overflow:hidden;
+    z-index:200;
+
+    animation:notificationPanelIn .16s ease-out;
+}
+
+.notification-panel[hidden]{
+    display:none !important;
+}
+
+@keyframes notificationPanelIn{
+    from{
+        opacity:0;
+        transform:translateY(-6px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+/* Header popup */
+
+.notification-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+
+    padding:16px 17px;
+
+    background:
+        linear-gradient(
+            135deg,
+            color-mix(in srgb,var(--surface-2) 92%,var(--bps-blue)),
+            var(--surface)
+        );
+
+    border-bottom:1px solid var(--line);
+}
+
+.notification-header strong{
+    display:block;
+    font-size:13px;
+    color:var(--text);
+}
+
+.notification-header small{
+    display:block;
+    margin-top:2px;
+    color:var(--muted);
+    font-size:9px;
+}
+
+/* Daftar */
+
+.notification-list{
+    overflow-y:auto;
+    overscroll-behavior:contain;
+}
+
+.notification-list::-webkit-scrollbar{
+    width:5px;
+}
+
+.notification-list::-webkit-scrollbar-track{
+    background:transparent;
+}
+
+.notification-list::-webkit-scrollbar-thumb{
+    background:var(--line);
+    border-radius:10px;
+}
+
+/* Item */
+
+.notification-item{
+    position:relative;
+
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:10px;
+
+    padding:13px 14px;
+
+    border-bottom:1px solid var(--line-soft);
+
+    background:var(--surface);
+
+    transition:
+        background .16s ease,
+        opacity .16s ease;
+}
+
+.notification-item:last-child{
+    border-bottom:0;
+}
+
+.notification-item:hover{
+    background:var(--surface-2);
+}
+
+.notification-item.is-unread{
+    background:
+        color-mix(
+            in srgb,
+            var(--bps-orange) 4%,
+            var(--surface)
+        );
+}
+
+/* Isi item */
+
+.notification-item-main{
+    min-width:0;
+    flex:1;
+
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+}
+
+.notification-item-icon{
+    width:32px;
+    height:32px;
+    flex:0 0 32px;
+
+    display:grid;
+    place-items:center;
+
+    color:var(--bps-blue);
+    background:rgba(22,155,213,.10);
+
+    border:1px solid rgba(22,155,213,.14);
+    border-radius:9px;
+}
+
+.notification-item-icon .ui-icon{
+    width:15px;
+    height:15px;
+}
+
+/* Konten */
+
+.notification-item-content{
+    min-width:0;
+    flex:1;
+}
+
+.notification-item-title-row{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    min-width:0;
+}
+
+.notification-item-title-row strong{
+    color:var(--text-2);
+    font-size:10px;
+    font-weight:800;
+}
+
+.notification-unread-dot{
+    width:7px;
+    height:7px;
+    flex:0 0 7px;
+
+    background:var(--bps-orange);
+    border-radius:50%;
+
+    box-shadow:
+        0 0 0 2px
+        color-mix(
+            in srgb,
+            var(--bps-orange) 12%,
+            transparent
+        );
+}
+
+.notification-letter-number{
+    display:block;
+
+    margin-top:3px;
+
+    color:var(--bps-blue);
+    font-family:
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        Monaco,
+        Consolas,
+        monospace;
+
+    font-size:9px;
+    font-weight:750;
+
+    word-break:break-word;
+}
+
+.notification-subject{
+    display:block;
+
+    margin-top:3px;
+
+    color:var(--text);
+    font-size:10px;
+    font-weight:650;
+
+    line-height:1.4;
+
+    overflow:hidden;
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+}
+
+.notification-recipient{
+    display:block;
+
+    margin-top:3px;
+
+    color:var(--muted);
+    font-size:8px;
+
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+
+.notification-date{
+    display:block;
+
+    margin-top:5px;
+
+    color:var(--muted-2);
+    font-size:8px;
+}
+
+/* Tombol kanan */
+
+.notification-actions{
+    flex:0 0 auto;
+
+    display:flex;
+    align-items:center;
+    gap:5px;
+
+    margin-top:1px;
+}
+
+.notification-action{
+    width:28px;
+    height:28px;
+
+    display:grid;
+    place-items:center;
+
+    padding:0;
+
+    border:1px solid var(--line);
+    border-radius:7px;
+
+    background:var(--surface-2);
+    color:var(--muted);
+
+    cursor:pointer;
+
+    transition:
+        background .15s ease,
+        border-color .15s ease,
+        color .15s ease,
+        transform .15s ease;
+}
+
+.notification-action .ui-icon{
+    width:13px;
+    height:13px;
+}
+
+.notification-action:hover{
+    transform:translateY(-1px);
+    background:var(--surface-3);
+    color:var(--text);
+}
+
+.notification-read-btn:hover{
+    color:var(--bps-green);
+    border-color:rgba(104,190,43,.35);
+}
+
+.notification-delete-btn:hover{
+    color:var(--danger);
+    border-color:rgba(239,91,103,.35);
+}
+
+.notification-action:disabled{
+    opacity:.35;
+    cursor:default;
+    transform:none;
+}
+
+.notification-delete-btn{
+    color:var(--muted-2);
+}
+
+/* Loading */
+
+.notification-loading{
+    min-height:150px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:9px;
+
+    color:var(--muted);
+    font-size:9px;
+}
+
+.notification-loading-spinner{
+    width:15px;
+    height:15px;
+
+    border:2px solid var(--line);
+    border-top-color:var(--bps-blue);
+
+    border-radius:50%;
+
+    animation:notificationSpin .7s linear infinite;
+}
+
+@keyframes notificationSpin{
+    to{
+        transform:rotate(360deg);
+    }
+}
+
+/* Kosong */
+
+.notification-empty{
+    min-height:180px;
+
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+
+    padding:25px;
+
+    text-align:center;
+}
+
+.notification-empty-icon{
+    width:42px;
+    height:42px;
+
+    display:grid;
+    place-items:center;
+
+    margin-bottom:9px;
+
+    color:var(--muted);
+    background:var(--surface-2);
+
+    border:1px solid var(--line);
+    border-radius:12px;
+}
+
+.notification-empty-icon .ui-icon{
+    width:18px;
+    height:18px;
+}
+
+.notification-empty strong{
+    color:var(--text-2);
+    font-size:10px;
+}
+
+.notification-empty span{
+    max-width:250px;
+
+    margin-top:4px;
+
+    color:var(--muted);
+    font-size:8px;
+    line-height:1.5;
+}
+
+.notification-error strong{
+    color:var(--danger);
+}
+
+/* =========================================================
+   NOTIFICATION - LIGHT THEME
+========================================================= */
+
+html[data-theme="light"] .notification-panel{
+    box-shadow:
+        0 20px 50px rgba(32,49,66,.14),
+        0 4px 14px rgba(32,49,66,.08);
+}
+
+/* =========================================================
+   NOTIFICATION - RESPONSIVE
+========================================================= */
+
+@media(max-width:700px){
+    .notification-panel{
+        width:360px;
+        max-width:calc(100vw - 26px);
+        right:-5px;
+    }
+}
+
+@media(max-width:430px){
+    /*
+     * CSS lama Anda menyembunyikan notification-btn
+     * pada layar <= 430px.
+     * Override supaya notifikasi tetap tersedia.
+     */
+    .notification-btn{
+        display:inline-grid;
+    }
+
+    .notification-panel{
+        position:fixed;
+        top:calc(var(--topbar-h) + 7px);
+        right:10px;
+        left:10px;
+
+        width:auto;
+        max-width:none;
+
+        max-height:calc(100vh - var(--topbar-h) - 20px);
+    }
+
+    .notification-item{
+        padding:12px;
+    }
+
+    .notification-actions{
+        gap:4px;
+    }
+
+    .notification-action{
+        width:30px;
+        height:30px;
+    }
+}

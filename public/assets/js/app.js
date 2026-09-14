@@ -492,4 +492,502 @@ if (profileChip && profileDropdown) {
         e.stopPropagation();
     });
 }
+  // =====================================================================
+  // NOTIFICATION
+  // =====================================================================
+  const notificationButton = $('#notificationButton');
+  const notificationPanel = $('#notificationPanel');
+  const notificationDot = $('#notificationDot');
+  const notificationList = $('#notificationList');
+  const notificationSummary = $('#notificationSummary');
+
+  const csrfToken = $('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+  let notificationOpen = false;
+
+  /**
+   * Format tanggal notifikasi.
+   */
+  const formatNotificationDate = (value) => {
+    if (!value) return '';
+
+    const date = new Date(String(value).replace(' ', 'T'));
+
+    if (Number.isNaN(date.getTime())) {
+      return String(value);
+    }
+
+    return date.toLocaleString('id-ID', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  /**
+   * Update titik kuning pada tombol bell.
+   */
+  const updateNotificationDot = (count) => {
+    if (!notificationDot) return;
+
+    notificationDot.hidden = Number(count) <= 0;
+  };
+
+  /**
+   * Tampilkan loading.
+   */
+  const showNotificationLoading = () => {
+    if (!notificationList) return;
+
+    notificationList.innerHTML = `
+      <div class="notification-loading">
+        <span class="notification-loading-spinner"></span>
+        <span>Memuat notifikasi...</span>
+      </div>
+    `;
+  };
+
+  /**
+   * Tampilkan kondisi kosong.
+   */
+  const showNotificationEmpty = () => {
+    if (!notificationList) return;
+
+    notificationList.innerHTML = `
+      <div class="notification-empty">
+        <div class="notification-empty-icon">
+          ${iconMail}
+        </div>
+        <strong>Tidak ada notifikasi</strong>
+        <span>
+          Belum ada surat keluar biasa yang masuk ke notifikasi.
+        </span>
+      </div>
+    `;
+  };
+
+  /**
+   * Icon sederhana untuk notifikasi.
+   */
+  const iconMail = `
+    <svg class="ui-icon"
+         viewBox="0 0 24 24"
+         fill="none"
+         stroke="currentColor"
+         stroke-width="1.8"
+         stroke-linecap="round"
+         stroke-linejoin="round">
+      <rect x="3" y="5" width="18" height="14" rx="2"/>
+      <path d="m3 7 9 6 9-6"/>
+    </svg>
+  `;
+
+  const iconCheck = `
+    <svg class="ui-icon"
+         viewBox="0 0 24 24"
+         fill="none"
+         stroke="currentColor"
+         stroke-width="2"
+         stroke-linecap="round"
+         stroke-linejoin="round">
+      <path d="m5 12 4 4L19 6"/>
+    </svg>
+  `;
+
+  const iconTrash = `
+    <svg class="ui-icon"
+         viewBox="0 0 24 24"
+         fill="none"
+         stroke="currentColor"
+         stroke-width="1.8"
+         stroke-linecap="round"
+         stroke-linejoin="round">
+      <path d="M3 6h18"/>
+      <path d="M8 6V4h8v2"/>
+      <path d="M19 6l-1 14H6L5 6"/>
+      <path d="M10 11v5M14 11v5"/>
+    </svg>
+  `;
+
+  /**
+   * Render daftar notifikasi.
+   */
+  const renderNotifications = (notifications) => {
+    if (!notificationList) return;
+
+    if (!Array.isArray(notifications) || notifications.length === 0) {
+      showNotificationEmpty();
+      return;
+    }
+
+    notificationList.innerHTML = notifications.map((item) => {
+      const id = Number(item.id);
+      const isRead = Number(item.is_read) === 1;
+
+      return `
+        <article
+          class="notification-item${isRead ? '' : ' is-unread'}"
+          data-notification-id="${id}"
+        >
+          <div class="notification-item-main">
+            <div class="notification-item-icon">
+              ${iconMail}
+            </div>
+
+            <div class="notification-item-content">
+              <div class="notification-item-title-row">
+                <strong>Surat keluar baru</strong>
+                ${
+                  !isRead
+                    ? '<span class="notification-unread-dot" aria-label="Belum dibaca"></span>'
+                    : ''
+                }
+              </div>
+
+              <span class="notification-letter-number">
+                ${escapeHtml(item.letter_number || '-')}
+              </span>
+
+              <span class="notification-subject">
+                ${escapeHtml(item.subject || 'Tanpa perihal')}
+              </span>
+
+              ${
+                item.recipient
+                  ? `
+                    <span class="notification-recipient">
+                      Tujuan: ${escapeHtml(item.recipient)}
+                    </span>
+                  `
+                  : ''
+              }
+
+              <time class="notification-date">
+                ${escapeHtml(formatNotificationDate(item.created_at))}
+              </time>
+            </div>
+          </div>
+
+          <div class="notification-actions">
+            <button
+              type="button"
+              class="notification-action notification-read-btn"
+              data-notification-action="read"
+              data-notification-id="${id}"
+              aria-label="Tandai sudah dibaca"
+              title="Tandai sudah dibaca"
+              ${isRead ? 'disabled' : ''}
+            >
+              ${iconCheck}
+            </button>
+
+            <button
+              type="button"
+              class="notification-action notification-delete-btn"
+              data-notification-action="delete"
+              data-notification-id="${id}"
+              aria-label="Hapus notifikasi"
+              title="Hapus notifikasi"
+            >
+              ${iconTrash}
+            </button>
+          </div>
+        </article>
+      `;
+    }).join('');
+  };
+
+  /**
+   * Ambil notifikasi dari server.
+   */
+  const loadNotifications = async () => {
+    if (!notificationList) return;
+
+    try {
+      const response = await fetch('/api/notifications', {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        credentials: 'same-origin',
+        cache: 'no-store'
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error('Gagal mengambil notifikasi.');
+      }
+
+      const count = Number(result.count || 0);
+      const data = Array.isArray(result.data) ? result.data : [];
+
+      updateNotificationDot(count);
+      renderNotifications(data);
+
+      if (notificationSummary) {
+        notificationSummary.textContent = count > 0
+          ? `${count} belum dibaca`
+          : 'Tidak ada yang belum dibaca';
+      }
+
+    } catch (error) {
+      console.error('Notification error:', error);
+
+      if (notificationSummary) {
+        notificationSummary.textContent = 'Gagal memuat notifikasi';
+      }
+
+      if (notificationList) {
+        notificationList.innerHTML = `
+          <div class="notification-empty notification-error">
+            <strong>Notifikasi tidak dapat dimuat</strong>
+            <span>
+              Silakan refresh halaman dan coba lagi.
+            </span>
+          </div>
+        `;
+      }
+    }
+  };
+
+  /**
+   * Buka/tutup popup.
+   */
+  const setNotificationPanel = (open) => {
+    if (!notificationPanel) return;
+
+    notificationOpen = open;
+    notificationPanel.hidden = !open;
+
+    if (open) {
+      showNotificationLoading();
+      loadNotifications();
+    }
+  };
+
+  /**
+   * Tandai surat sebagai sudah dibaca.
+   */
+  const markNotificationAsRead = async (id, button) => {
+    if (!id) return;
+
+    button?.setAttribute('disabled', 'disabled');
+
+    try {
+      const body = new URLSearchParams();
+      body.append('_token', csrfToken);
+
+      const response = await fetch(
+        `/api/notifications/${encodeURIComponent(id)}/read`,
+        {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+          },
+          credentials: 'same-origin',
+          body: body.toString()
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error('Gagal menandai notifikasi.');
+      }
+
+      updateNotificationDot(Number(result.count || 0));
+
+      const item = document.querySelector(
+        `.notification-item[data-notification-id="${CSS.escape(String(id))}"]`
+      );
+
+      if (item) {
+        item.classList.remove('is-unread');
+
+        const unreadDot = $('.notification-unread-dot', item);
+        unreadDot?.remove();
+
+        const readButton = $('[data-notification-action="read"]', item);
+
+        if (readButton) {
+          readButton.disabled = true;
+        }
+      }
+
+      if (notificationSummary) {
+        const count = Number(result.count || 0);
+        notificationSummary.textContent = count > 0
+          ? `${count} belum dibaca`
+          : 'Tidak ada yang belum dibaca';
+      }
+
+    } catch (error) {
+      console.error('Mark notification read error:', error);
+
+      button?.removeAttribute('disabled');
+
+      window.alert(
+        'Notifikasi gagal ditandai sebagai sudah dibaca.'
+      );
+    }
+  };
+
+  /**
+   * Hapus notifikasi dari daftar user.
+   *
+   * Catatan:
+   * Ini TIDAK menghapus surat dari outgoing_letters.
+   * Hanya menghapus notifikasi user.
+   */
+  const deleteNotification = async (id, button) => {
+    if (!id) return;
+
+    button?.setAttribute('disabled', 'disabled');
+
+    try {
+      const body = new URLSearchParams();
+      body.append('_token', csrfToken);
+
+      const response = await fetch(
+        `/api/notifications/${encodeURIComponent(id)}/delete`,
+        {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+          },
+          credentials: 'same-origin',
+          body: body.toString()
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error('Gagal menghapus notifikasi.');
+      }
+
+      updateNotificationDot(Number(result.count || 0));
+
+      const item = document.querySelector(
+        `.notification-item[data-notification-id="${CSS.escape(String(id))}"]`
+      );
+
+      item?.remove();
+
+      if (
+        notificationList &&
+        !notificationList.querySelector('.notification-item')
+      ) {
+        showNotificationEmpty();
+      }
+
+      if (notificationSummary) {
+        const count = Number(result.count || 0);
+
+        notificationSummary.textContent = count > 0
+          ? `${count} belum dibaca`
+          : 'Tidak ada yang belum dibaca';
+      }
+
+    } catch (error) {
+      console.error('Delete notification error:', error);
+
+      button?.removeAttribute('disabled');
+
+      window.alert(
+        'Notifikasi gagal dihapus.'
+      );
+    }
+  };
+
+  /**
+   * Tombol bell.
+   */
+  notificationButton?.addEventListener('click', (event) => {
+    event.stopPropagation();
+
+    setNotificationPanel(!notificationOpen);
+  });
+
+  /**
+   * Klik di dalam popup tidak menutup popup.
+   */
+  notificationPanel?.addEventListener('click', (event) => {
+    event.stopPropagation();
+
+    const button = event.target.closest(
+      '[data-notification-action]'
+    );
+
+    if (!button) return;
+
+    const action = button.dataset.notificationAction;
+    const id = Number(button.dataset.notificationId);
+
+    if (!id) return;
+
+    if (action === 'read') {
+      markNotificationAsRead(id, button);
+    }
+
+    if (action === 'delete') {
+      deleteNotification(id, button);
+    }
+  });
+
+  /**
+   * Klik di luar popup menutup popup.
+   */
+  document.addEventListener('click', () => {
+    if (!notificationOpen) return;
+
+    setNotificationPanel(false);
+  });
+
+  /**
+   * ESC untuk menutup popup.
+   */
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && notificationOpen) {
+      setNotificationPanel(false);
+    }
+  });
+
+  /**
+   * Ambil jumlah notifikasi saat halaman dibuka.
+   * Ini membuat titik kuning langsung muncul jika ada surat baru.
+   */
+  if (notificationButton) {
+    loadNotifications();
+  }
+
+  /**
+   * Refresh jumlah notifikasi setiap 30 detik.
+   * Tidak membuka popup secara otomatis.
+   */
+  if (notificationButton) {
+    window.setInterval(() => {
+      loadNotifications();
+    }, 30000);
+  }
 })();

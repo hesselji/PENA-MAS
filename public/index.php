@@ -22,6 +22,7 @@ use App\Controllers\AdminUserController;
 use App\Controllers\AuthController;
 use App\Controllers\DashboardController;
 use App\Controllers\IncomingLetterController;
+use App\Controllers\NotificationController;
 use App\Controllers\OutgoingLetterController;
 
 try {
@@ -60,6 +61,10 @@ $router->get('/api/classifications', [OutgoingLetterController::class, 'classifi
 $router->get('/api/classification-groups', [OutgoingLetterController::class, 'classificationGroups']);
 $router->get('/api/classification-items', [OutgoingLetterController::class, 'classificationItems']);
 $router->get('/api/classification-search', [OutgoingLetterController::class, 'classificationSearch']);
+
+$router->get('/api/notifications', [NotificationController::class, 'index']);
+$router->post('/api/notifications/{id}/read', [NotificationController::class, 'read']);
+$router->post('/api/notifications/{id}/delete', [NotificationController::class, 'delete']);
 
 $router->get('/incoming', [IncomingLetterController::class, 'index']);
 $router->get('/incoming/create', [IncomingLetterController::class, 'create']);
