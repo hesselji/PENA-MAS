@@ -1,6 +1,7 @@
 <?php
 use App\Core\Auth;
 $currentUserId = (int) (Auth::id() ?? 0);
+$roleLabels = ['ADMIN' => 'Administrator', 'USER' => 'Pengguna Surat Keluar', 'INCOMING' => 'Petugas Surat Masuk'];
 ?>
 
 <section class="page-heading">
@@ -27,7 +28,7 @@ $currentUserId = (int) (Auth::id() ?? 0);
             <thead>
                 <tr>
                     <th>Pengguna</th>
-                    <th>Role</th>
+                    <th>Hak Akses</th>
                     <th>Tim Kerja</th>
                     <th>Status</th>
                     <th>Dibuat</th>
@@ -47,14 +48,14 @@ $currentUserId = (int) (Auth::id() ?? 0);
                     <tr>
                         <td>
                             <div class="user-cell">
-                                <span class="avatar avatar-sm"><?= e(user_initials($u['name'])) ?></span>
+                                <span class="avatar avatar-sm"><?= e(user_initials(display_user_name(display_user_name($u['name'])))) ?></span>
                                 <div class="user-cell-copy">
-                                    <strong><?= e($u['name']) ?><?php if ($isSelf): ?><span class="you-badge">Anda</span><?php endif; ?></strong>
+                                    <strong><?= e(display_user_name($u['name'])) ?><?php if ($isSelf): ?><span class="you-badge">Anda</span><?php endif; ?></strong>
                                     <small><?= e($u['email']) ?></small>
                                 </div>
                             </div>
                         </td>
-                        <td><span class="role-badge role-<?= e(strtolower($u['role'])) ?>"><?= e($u['role']) ?></span></td>
+                        <td><span class="role-badge role-<?= e(strtolower($u['role'])) ?>"><?= e($roleLabels[$u['role']] ?? $u['role']) ?></span></td>
                         <td><span class="team-name"><?= e($u['work_team_name'] ?? '-') ?></span></td>
                         <td><span class="badge <?= $isActive ? 'badge-active' : 'badge-cancelled' ?>"><i></i><?= $isActive ? 'Aktif' : 'Dibekukan' ?></span></td>
                         <td><span class="date-cell"><?= e(format_date_id($u['created_at'])) ?></span></td>
@@ -63,7 +64,7 @@ $currentUserId = (int) (Auth::id() ?? 0);
                                 <a href="/admin/users/<?= $userId ?>/edit" class="btn btn-ghost btn-sm user-action-btn" title="Edit pengguna"><?= ui_icon('settings') ?><span>Edit</span></a>
 
                                 <?php if (!$isSelf): ?>
-                                    <a href="/admin/users/<?= $userId ?>/reset-password" class="btn btn-ghost btn-sm user-action-btn" title="Reset password"><?= ui_icon('lock') ?><span>Reset</span></a>
+                                    <a href="/admin/users/<?= $userId ?>/reset-password" class="btn btn-ghost btn-sm user-action-btn" title="Atur ulang password"><?= ui_icon('lock') ?><span>Atur Ulang</span></a>
                                     <form method="post" action="/admin/users/<?= $userId ?>/toggle-status" class="user-action-form" data-confirm="<?= e($isActive ? 'Bekukan akun ini? Pengguna tidak akan dapat login sampai akun diaktifkan kembali.' : 'Aktifkan kembali akun ini?') ?>">
                                         <?= csrf_field() ?>
                                         <button type="submit" class="btn btn-sm user-action-btn <?= $isActive ? 'btn-freeze' : 'btn-activate' ?>">
@@ -72,7 +73,7 @@ $currentUserId = (int) (Auth::id() ?? 0);
                                         </button>
                                     </form>
 
-                                    <form method="post" action="/admin/users/<?= $userId ?>/delete" class="user-action-form" data-confirm="Hapus akun ini? Akun akan hilang dari daftar, tetapi histori surat dan audit tetap dipertahankan.">
+                                    <form method="post" action="/admin/users/<?= $userId ?>/delete" class="user-action-form" data-confirm="Hapus akun ini? Akun akan hilang dari daftar, tetapi riwayat surat dan aktivitas tetap dipertahankan.">
                                         <?= csrf_field() ?>
                                         <button type="submit" class="btn btn-danger btn-sm user-action-btn"><?= ui_icon('x') ?><span>Hapus</span></button>
                                     </form>

@@ -10,6 +10,12 @@ $errors = $_SESSION['errors'] ?? [];
 unset($_SESSION['errors']);
 $path = current_path();
 $appName = Env::get('APP_NAME', 'PENA MAS');
+$roleLabels = [
+    'ADMIN' => 'Administrator',
+    'USER' => 'Pengguna Surat Keluar',
+    'INCOMING' => 'Petugas Surat Masuk',
+];
+$roleLabel = $roleLabels[$me['role'] ?? ''] ?? ($me['role'] ?? '');
 $searchIncoming = Auth::isIncoming() || str_starts_with($path, '/incoming');
 $searchAction = $searchIncoming ? '/incoming' : '/letters';
 $searchPlaceholder = $searchIncoming ? 'Cari surat masuk, asal, perihal...' : 'Cari nomor, perihal, tujuan...';
@@ -24,7 +30,7 @@ $searchPlaceholder = $searchIncoming ? 'Cari surat masuk, asal, perihal...' : 'C
     <meta name="description" content="PENA MAS - Penomoran Agenda dan Manajemen Arsip Surat">
     <title><?= e($appName) ?></title>
     <link rel="icon" href="/assets/images/penamas-icon.png" type="image/png">
-    <link rel="stylesheet" href="/assets/css/style.css?v=20260910-batch-v06">
+    <link rel="stylesheet" href="/assets/css/style.css?v=20260914-production-v08">
 </head>
 <body class="<?= $me ? 'app-body' : 'auth-body' ?>">
 <?php if ($me): ?>
@@ -46,7 +52,7 @@ $searchPlaceholder = $searchIncoming ? 'Cari surat masuk, asal, perihal...' : 'C
                 <a class="nav-item<?= nav_active('/dashboard', true) ?>" href="/dashboard"><span class="nav-icon"><?= ui_icon('dashboard') ?></span><span>Dashboard</span></a>
 
                 <span class="nav-section-label nav-section-spaced">Surat Keluar</span>
-                <a class="nav-item<?= nav_active('/letters/create', true) ?>" href="/letters/create"><span class="nav-icon"><?= ui_icon('mail-plus') ?></span><span>Generate Nomor</span></a>
+                <a class="nav-item<?= nav_active('/letters/create', true) ?>" href="/letters/create"><span class="nav-icon"><?= ui_icon('mail-plus') ?></span><span>Buat Nomor Surat</span></a>
                 <a class="nav-item<?= ($path === '/letters' || (str_starts_with($path, '/letters/') && $path !== '/letters/create')) ? ' active' : '' ?>" href="/letters"><span class="nav-icon"><?= ui_icon('mail') ?></span><span>Agenda Surat Keluar</span></a>
             <?php endif; ?>
 
@@ -63,25 +69,20 @@ $searchPlaceholder = $searchIncoming ? 'Cari surat masuk, asal, perihal...' : 'C
                 <span class="nav-section-label nav-section-spaced">Administrasi</span>
                 <a class="nav-item<?= nav_active('/admin/users') ?>" href="/admin/users"><span class="nav-icon"><?= ui_icon('users') ?></span><span>Pengguna</span></a>
                 <a class="nav-item<?= nav_active('/admin/classifications') ?>" href="/admin/classifications"><span class="nav-icon"><?= ui_icon('archive') ?></span><span>Katalog KKA</span></a>
-                <a class="nav-item<?= nav_active('/admin/numbering-rules') ?>" href="/admin/numbering-rules"><span class="nav-icon"><?= ui_icon('settings') ?></span><span>Aturan Nomor</span></a>
+                <a class="nav-item<?= nav_active('/admin/numbering-rules') ?>" href="/admin/numbering-rules"><span class="nav-icon"><?= ui_icon('settings') ?></span><span>Pengaturan Nomor</span></a>
             <?php endif; ?>
         </nav>
 
         <div class="sidebar-spacer"></div>
-        <div class="sidebar-help">
-            <span class="help-icon"><?= ui_icon('info') ?></span>
-            <div><strong>Butuh bantuan?</strong><small>Hubungi administrator PENA MAS.</small></div>
-            <a href="mailto:admin@demo.local" class="btn btn-primary btn-sm">Hubungi Admin</a>
-        </div>
-
         <div class="sidebar-user">
-            <div class="avatar avatar-sm"><?= e(user_initials($me['name'])) ?></div>
-            <div class="sidebar-user-copy"><strong><?= e($me['name']) ?></strong><small><?= e($me['role']) ?><?= !empty($me['work_team_name']) ? ' • ' . e($me['work_team_name']) : '' ?></small></div>
+            <div class="avatar avatar-sm"><?= e(user_initials(display_user_name($me['name']))) ?></div>
+            <div class="sidebar-user-copy"><strong><?= e(display_user_name($me['name'])) ?></strong><small><?= e($roleLabel) ?><?= !empty($me['work_team_name']) ? ' - ' . e($me['work_team_name']) : '' ?></small></div>
             <form method="post" action="/logout"><?= csrf_field() ?><button class="icon-btn logout-btn" type="submit" aria-label="Keluar" title="Keluar"><?= ui_icon('logout') ?></button></form>
         </div>
     </aside>
 
     <div class="app-main">
+        <div class="app-ambient" aria-hidden="true"><span class="a1"></span><span class="a2"></span><span class="a3"></span></div>
         <header class="topbar">
             <div class="topbar-left">
                 <button class="icon-btn mobile-menu" type="button" data-sidebar-open aria-label="Buka menu"><?= ui_icon('menu') ?></button>
@@ -89,8 +90,7 @@ $searchPlaceholder = $searchIncoming ? 'Cari surat masuk, asal, perihal...' : 'C
             </div>
             <div class="topbar-actions">
                 <button class="icon-btn" type="button" data-theme-toggle aria-label="Ganti tema" title="Ganti tema"><span data-theme-icon><?= ui_icon('moon') ?></span></button>
-                <button class="icon-btn notification-btn" type="button" aria-label="Notifikasi" title="Notifikasi"><?= ui_icon('bell') ?><i></i></button>
-                <div class="profile-chip"><div class="avatar"><?= e(user_initials($me['name'])) ?></div><div><strong><?= e($me['name']) ?></strong><small><?= e($me['role']) ?></small></div></div>
+                <div class="profile-chip"><div class="avatar"><?= e(user_initials(display_user_name($me['name']))) ?></div><div><strong><?= e(display_user_name($me['name'])) ?></strong><small><?= e($roleLabel) ?></small></div></div>
             </div>
         </header>
 

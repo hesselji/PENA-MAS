@@ -48,7 +48,7 @@
         </div>
 
         <div class="form-actions-sticky">
-            <div class="form-security-note"><?= ui_icon('shield') ?><span>Password disimpan dalam bentuk hash BCRYPT dan tidak dapat dilihat kembali oleh administrator.</span></div>
+            <div class="form-security-note"><?= ui_icon('shield') ?><span>Password Anda dilindungi dan tidak dapat dilihat kembali oleh administrator.</span></div>
             <div>
                 <a class="btn btn-secondary" href="<?= e(\App\Core\Auth::homePath()) ?>">Batal</a>
                 <button class="btn btn-primary" type="submit"><?= ui_icon('lock') ?><span>Simpan Password Baru</span></button>

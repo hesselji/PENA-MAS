@@ -3,7 +3,7 @@
     <div>
         <span class="eyebrow">SURAT KELUAR</span>
         <h1>Agenda surat keluar</h1>
-        <p><?= Auth::isAdmin() ? 'Admin melihat seluruh agenda, termasuk surat terlindungi.' : 'Seluruh surat Biasa dari semua pengguna ditampilkan pada agenda bersama.' ?></p>
+        <p><?= Auth::isAdmin() ? 'Administrator melihat seluruh agenda, termasuk surat terlindungi.' : 'Seluruh surat Biasa dari semua pengguna ditampilkan pada agenda bersama.' ?></p>
     </div>
     <a class="btn btn-primary" href="/letters/create"><?= ui_icon('plus') ?><span>Buat Nomor Baru</span></a>
 </section>
@@ -23,7 +23,7 @@
     </form>
 
     <div class="agenda-summary-row">
-        <div><span class="summary-dot blue"></span><b><?= count($letters) ?></b><span>record ditampilkan</span></div>
+        <div><span class="summary-dot blue"></span><b><?= count($letters) ?></b><span>surat ditampilkan</span></div>
         <?php if (!empty($filters['q']) || !empty($filters['team']) || !empty($filters['status'])): ?><span class="filter-active-chip"><?= ui_icon('filter') ?> Filter aktif</span><?php endif; ?>
     </div>
 
@@ -32,19 +32,19 @@
             <thead><tr><th>Nomor Surat</th><th>Tanggal</th><th>Perihal & Tujuan</th><th>Tim / Pembuat</th><th>Sifat</th><th>Status</th><th class="text-right">Aksi</th></tr></thead>
             <tbody>
             <?php if (!$letters): ?>
-                <tr><td colspan="7"><div class="empty-state"><span><?= ui_icon('mail') ?></span><h3>Tidak ada item ditemukan</h3><p>Belum ada record yang cocok dengan pencarian atau filter Anda.</p><a class="btn btn-primary" href="/letters/create">Generate Nomor</a></div></td></tr>
+                <tr><td colspan="7"><div class="empty-state"><span><?= ui_icon('mail') ?></span><h3>Tidak ada item ditemukan</h3><p>Belum ada surat yang cocok dengan pencarian atau pilihan Anda.</p><a class="btn btn-primary" href="/letters/create">Buat Nomor Surat</a></div></td></tr>
             <?php else: foreach($letters as $r): $secret=in_array($r['sensitivity'],['RAHASIA','SANGAT_RAHASIA'],true); ?>
                 <tr class="<?= $secret?'confidential-row':'' ?>">
-                    <td><a class="number-link" href="/letters/<?= (int)$r['id'] ?>"><?= e($r['letter_number']) ?></a><small>Agenda #<?= e($r['agenda_number']) ?> • <?= e($r['letter_type_name']) ?></small></td>
+                    <td><a class="number-link" href="/letters/<?= (int)$r['id'] ?>"><?= e($r['letter_number']) ?></a><small>Agenda #<?= e($r['agenda_number']) ?> - <?= e($r['letter_type_name']) ?></small></td>
                     <td><span class="date-cell"><?= ui_icon('calendar') ?><?= e(format_date_id($r['letter_date'])) ?></span></td>
                     <td>
                         <?php if($secret): ?>
-                            <strong class="cell-title confidential-mask"><?= ui_icon('lock') ?> Detail terlindungi</strong><small>Verifikasi password Admin untuk melihat perihal dan tujuan.</small>
+                            <strong class="cell-title confidential-mask"><?= ui_icon('lock') ?> Detail terlindungi</strong><small>Verifikasi password Administrator untuk melihat perihal dan tujuan.</small>
                         <?php else: ?>
                             <strong class="cell-title"><?= e($r['subject']) ?></strong><small><?= e($r['recipient']) ?></small>
                         <?php endif; ?>
                     </td>
-                    <td><span class="team-chip"><?= e($r['work_team_name']) ?></span><small><?= e($r['requester_name']) ?></small></td>
+                    <td><span class="team-chip"><?= e($r['work_team_name']) ?></span><small><?= e(display_user_name($r['requester_name'])) ?></small></td>
                     <td><span class="sensitivity-badge sens-<?= strtolower($r['sensitivity']) ?>"><?= e(sensitivity_label($r['sensitivity'])) ?></span></td>
                     <td><span class="badge badge-<?= strtolower($r['status']) ?>"><i></i><?= e(status_label($r['status'])) ?></span></td>
                     <td class="text-right"><a class="icon-btn row-action" href="/letters/<?= (int)$r['id'] ?>" title="Lihat detail" aria-label="Lihat detail"><?= $secret?ui_icon('lock'):ui_icon('eye') ?></a></td>

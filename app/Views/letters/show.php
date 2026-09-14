@@ -5,9 +5,9 @@ $isConfidential=in_array($letter['sensitivity'],['RAHASIA','SANGAT_RAHASIA'],tru
 <section class="page-heading detail-heading">
     <div>
         <a class="breadcrumb" href="/letters"><?= ui_icon('arrow-left') ?> Kembali ke Agenda Surat Keluar</a>
-        <span class="eyebrow">DETAIL RECORD</span>
+        <span class="eyebrow">DETAIL SURAT</span>
         <h1>Informasi agenda surat</h1>
-        <p>Record lengkap dari nomor agenda yang telah di-generate.</p>
+        <p>Informasi lengkap surat yang telah dicatat dalam agenda.</p>
     </div>
     <div class="heading-actions">
         <?php if($isConfidential): ?>
@@ -17,26 +17,26 @@ $isConfidential=in_array($letter['sensitivity'],['RAHASIA','SANGAT_RAHASIA'],tru
     </div>
 </section>
 
-<?php if($isConfidential): ?><div class="confidential-unlocked-banner"><?= ui_icon('shield') ?><div><strong><?= e(sensitivity_label($letter['sensitivity'])) ?> — akses terverifikasi</strong><small>Detail ini terbuka sementara setelah verifikasi ulang password Admin.</small></div></div><?php endif; ?>
+<?php if($isConfidential): ?><div class="confidential-unlocked-banner"><?= ui_icon('shield') ?><div><strong><?= e(sensitivity_label($letter['sensitivity'])) ?> — akses terverifikasi</strong><small>Detail ini terbuka sementara setelah verifikasi ulang password Administrator.</small></div></div><?php endif; ?>
 
 <section class="number-hero-card <?= $letter['status'] === 'CANCELLED' ? 'is-cancelled' : '' ?>">
     <div class="number-hero-icon"><?= ui_icon('file') ?></div>
-    <div class="number-hero-main"><span>Nomor Surat</span><strong id="letterNumberValue"><?= e($letter['letter_number']) ?></strong><small>Agenda #<?= e($letter['agenda_number']) ?> • <?= e($letter['letter_type_name']) ?> • Jalur <?= e($letter['unit_code']) ?></small></div>
+    <div class="number-hero-main"><span>Nomor Surat</span><strong id="letterNumberValue"><?= e($letter['letter_number']) ?></strong><small>Agenda #<?= e($letter['agenda_number']) ?> - <?= e($letter['letter_type_name']) ?> - Jalur <?= e($letter['unit_code']) ?></small></div>
     <button class="btn btn-secondary" type="button" data-copy-target="#letterNumberValue"><?= ui_icon('copy') ?><span>Salin Nomor</span></button>
 </section>
 
 <div class="detail-layout">
     <section class="panel detail-panel">
-        <div class="panel-heading"><div><span class="eyebrow">DATA SURAT</span><h2>Informasi utama</h2><p>Detail yang tersimpan pada record agenda.</p></div><span class="panel-icon-soft"><?= ui_icon('mail') ?></span></div>
+        <div class="panel-heading"><div><span class="eyebrow">DATA SURAT</span><h2>Informasi utama</h2><p>Informasi yang tersimpan pada agenda surat.</p></div><span class="panel-icon-soft"><?= ui_icon('mail') ?></span></div>
         <div class="detail-data-grid">
             <div><span>Tim Kerja</span><strong><?= e($letter['work_team_name']) ?></strong></div>
-            <div><span>Pengaju</span><strong><?= e($letter['requester_name']) ?></strong></div>
+            <div><span>Pengaju</span><strong><?= e(display_user_name($letter['requester_name'])) ?></strong></div>
             <div><span>Sistem</span><strong><?= e(str_replace('_', ' ', $letter['system_type'])) ?></strong></div>
             <div><span>Tanggal Surat</span><strong><?= e(format_date_id($letter['letter_date'])) ?></strong></div>
             <div><span>Sifat Surat</span><strong><span class="sensitivity-badge sens-<?= strtolower($letter['sensitivity']) ?>"><?= e(sensitivity_label($letter['sensitivity'])) ?></span></strong></div>
             <div><span>Ada Anggaran</span><strong><?= $letter['uses_budget']==='Y'?'Ya':'Tidak' ?></strong></div>
             <div><span>Jenis Arsip</span><strong><?= e(ucwords(strtolower($letter['archive_type']))) ?></strong></div>
-            <div><span>Klasifikasi</span><strong class="classification-code"><?= e($letter['classification_code']) ?></strong><small class="table-subtext"><?= e(($letter['classification_group_name'] ?? '').(($letter['classification_item_name'] ?? '') ? ' • '.($letter['classification_item_name'] ?? '') : '')) ?></small></div>
+            <div><span>Klasifikasi</span><strong class="classification-code"><?= e($letter['classification_code']) ?></strong><small class="table-subtext"><?= e(($letter['classification_group_name'] ?? '').(($letter['classification_item_name'] ?? '') ? ' - '.($letter['classification_item_name'] ?? '') : '')) ?></small></div>
             <div class="detail-span-2"><span>Tujuan Surat</span><strong><?= e($letter['recipient']) ?></strong></div>
             <div class="detail-span-2"><span>Perihal</span><strong><?= e($letter['subject']) ?></strong></div>
             <?php if($letter['notes']):?><div class="detail-span-2"><span>Catatan</span><p><?= nl2br(e($letter['notes'])) ?></p></div><?php endif;?>
@@ -45,7 +45,7 @@ $isConfidential=in_array($letter['sensitivity'],['RAHASIA','SANGAT_RAHASIA'],tru
 
     <aside class="detail-aside">
         <section class="panel audit-panel">
-            <div class="panel-heading"><div><span class="eyebrow">AUDIT TRAIL</span><h2>Status Nomor</h2></div><span class="panel-icon-soft"><?= ui_icon('shield') ?></span></div>
+            <div class="panel-heading"><div><span class="eyebrow">RIWAYAT SURAT</span><h2>Status Nomor</h2></div><span class="panel-icon-soft"><?= ui_icon('shield') ?></span></div>
             <?php if($letter['status']==='ACTIVE'):?>
                 <div class="audit-status active"><span><?= ui_icon('check') ?></span><div><b>Nomor aktif</b><small>Nomor sudah tercatat dan dianggap terpakai.</small></div></div>
                 <?php if(Auth::isAdmin()):?>
@@ -59,15 +59,15 @@ $isConfidential=in_array($letter['sensitivity'],['RAHASIA','SANGAT_RAHASIA'],tru
                 <?php endif;?>
             <?php else:?>
                 <div class="audit-status cancelled"><span><?= ui_icon('ban') ?></span><div><b>Nomor dibatalkan</b><small><?= e(format_date_id($letter['cancelled_at'], true)) ?></small></div></div>
-                <div class="cancellation-detail"><span>Alasan</span><p><?= e($letter['cancellation_reason']) ?></p><small>Dibatalkan oleh <?= e($letter['cancelled_by_name'] ?? '-') ?></small></div>
+                <div class="cancellation-detail"><span>Alasan</span><p><?= e($letter['cancellation_reason']) ?></p><small>Dibatalkan oleh <?= e(isset($letter['cancelled_by_name']) ? display_user_name($letter['cancelled_by_name']) : '-') ?></small></div>
             <?php endif;?>
         </section>
         <section class="panel metadata-panel">
-            <span class="eyebrow">METADATA</span>
-            <div><span>Dibuat</span><strong><?= e(format_date_id($letter['created_at'], true)) ?></strong></div>
-            <div><span>Terakhir Diperbarui</span><strong><?= e(format_date_id($letter['updated_at'], true)) ?></strong></div>
+            <span class="eyebrow">INFORMASI PENCATATAN</span>
+            <div><span>Dicatat Pada</span><strong><?= e(format_date_id($letter['created_at'], true)) ?></strong></div>
+            <div><span>Terakhir Diubah</span><strong><?= e(format_date_id($letter['updated_at'], true)) ?></strong></div>
             <div><span>Tahun Agenda</span><strong><?= e((string)$letter['year']) ?></strong></div>
-            <div><span>Rule</span><strong><?= e($letter['rule_code']) ?></strong></div>
+            <div><span>Kode Unit</span><strong><?= e($letter['unit_code']) ?></strong></div>
         </section>
     </aside>
 </div>

@@ -2,7 +2,7 @@
     <div>
         <span class="eyebrow">SURAT MASUK</span>
         <h1>Agenda surat masuk</h1>
-        <p>Catat dan telusuri surat yang diterima tanpa melakukan generate nomor.</p>
+        <p>Catat dan telusuri surat yang diterima dengan mudah.</p>
     </div>
     <a class="btn btn-primary" href="/incoming/create"><?= ui_icon('plus') ?><span>Tambah Surat Masuk</span></a>
 </section>
@@ -30,7 +30,7 @@
                     <td><strong><?= e(format_date_id($r['received_date'])) ?></strong><small><?= e(format_date_id($r['recorded_at'],true)) ?></small></td>
                     <td><span class="team-chip"><?= e($r['origin']) ?></span></td>
                     <td><strong class="cell-title"><?= e($r['subject']) ?></strong><small><?= e($r['recipient']) ?></small></td>
-                    <td><?= e($r['creator_name']) ?></td>
+                    <td><?= e(display_user_name($r['creator_name'])) ?></td>
                     <td class="text-right"><a class="icon-btn row-action" href="/incoming/<?= (int)$r['id'] ?>" title="Lihat detail"><?= ui_icon('eye') ?></a></td>
                 </tr>
             <?php endforeach; endif; ?>

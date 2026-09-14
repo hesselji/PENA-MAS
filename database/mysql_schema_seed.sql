@@ -940,8 +940,4 @@ INSERT INTO archive_types(code,name,short_code) VALUES
 ('FASILITATIF','Fasilitatif','F'),
 ('SUBSTANTIF','Substantif','S');
 
--- Password demo: Admin123!, User123!, dan Incoming123!
-INSERT INTO users(name,email,password_hash,role,work_team_id) VALUES
-('Admin Prototype','admin@demo.local','$2y$12$thVd2VyO70X5pMSD/XKahesENG9hHC9yiNq7RlURDNeW6BE5V2NyC','ADMIN',1),
-('User Prototype','user@demo.local','$2y$12$8fsTzc.oexEXWWynIVQtb.8nxijN35mfsKYRQBrWvPfvC7y4k7UKC','USER',2),
-('Petugas Surat Masuk','incoming@demo.local','$2y$12$Tsym3L11wglsfte402ZYyOIA0faj3yR5V.baF/oau5xIvypIyCc7m','INCOMING',1);
+-- Akun pengguna dibuat setelah instalasi melalui pengelolaan akun PENA MAS.

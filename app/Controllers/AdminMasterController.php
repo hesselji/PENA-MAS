@@ -31,19 +31,19 @@ final class AdminMasterController
         $active=isset($_POST['is_active']);
 
         if($name==='' || $unit==='' || $pattern==='') {
-            $_SESSION['flash_error']='Nama, kode unit/segmen, dan pattern wajib diisi.';
+            $_SESSION['flash_error']='Nama pengaturan, kode unit, dan format nomor wajib diisi.';
             header('Location:/admin/numbering-rules');
             exit;
         }
         if(!str_contains($pattern,'{KKA}') || !str_contains($pattern,'{YEAR}') || !(str_contains($pattern,'{SEQ}') || str_contains($pattern,'{SEQ3}') || str_contains($pattern,'{SEQ4}'))) {
-            $_SESSION['flash_error']='Pattern minimal harus memuat sequence, {KKA}, dan {YEAR}.';
+            $_SESSION['flash_error']='Format nomor belum lengkap. Pastikan bagian nomor urut, KKA, dan tahun tersedia.';
             header('Location:/admin/numbering-rules');
             exit;
         }
         preg_match_all('/\{[A-Z0-9_]+\}/',$pattern,$matches);
         foreach(array_unique($matches[0]??[]) as $token) {
             if(!in_array($token,self::ALLOWED_TOKENS,true)) {
-                $_SESSION['flash_error']='Token tidak didukung: '.$token;
+                $_SESSION['flash_error']='Format nomor memuat bagian yang belum dikenali.';
                 header('Location:/admin/numbering-rules');
                 exit;
             }
@@ -73,7 +73,7 @@ final class AdminMasterController
         AuditLog::write(Auth::id(),'UPDATE_LETTER_TYPE_RULE','letter_type',(int)$id,[
             'numbering_rule_id'=>$ruleId,'active'=>$active,
         ]);
-        $_SESSION['flash_success']='Mapping jenis surat berhasil diperbarui.';
+        $_SESSION['flash_success']='Pengaturan jenis surat berhasil diperbarui.';
         header('Location:/admin/numbering-rules');
         exit;
     }

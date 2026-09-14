@@ -3,7 +3,7 @@
         <a class="breadcrumb" href="/incoming"><?= ui_icon('arrow-left') ?> Kembali ke Agenda Surat Masuk</a>
         <span class="eyebrow">DETAIL SURAT MASUK</span>
         <h1>Informasi surat masuk</h1>
-        <p>Record surat yang telah diterima dan dicatat pada PENA MAS.</p>
+        <p>Informasi surat yang telah diterima dan dicatat pada PENA MAS.</p>
     </div>
 </section>
 
@@ -28,7 +28,7 @@
     <aside class="detail-aside">
         <section class="panel metadata-panel">
             <span class="eyebrow">PENCATATAN</span>
-            <div><span>Dicatat Oleh</span><strong><?= e($letter['creator_name']) ?></strong></div>
+            <div><span>Dicatat Oleh</span><strong><?= e(display_user_name($letter['creator_name'])) ?></strong></div>
             <div><span>Tanggal Pencatatan</span><strong><?= e(format_date_id($letter['recorded_at'],true)) ?></strong></div>
             <div><span>Terakhir Diperbarui</span><strong><?= e(format_date_id($letter['updated_at'],true)) ?></strong></div>
         </section>

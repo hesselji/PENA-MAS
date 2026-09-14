@@ -4,17 +4,17 @@ $totalItems = array_sum(array_map(fn($g)=>(int)$g['item_count'],$activeGroups));
 ?>
 <section class="page-heading">
     <div>
-        <span class="eyebrow">MASTER DATA</span>
+        <span class="eyebrow">KLASIFIKASI ARSIP</span>
         <h1>Katalog Kode Klasifikasi</h1>
-        <p>Katalog KKA hasil import dari dokumen Kode.pdf yang diberikan untuk project.</p>
+        <p>Temukan kode klasifikasi arsip yang digunakan dalam pencatatan surat.</p>
     </div>
-    <a class="btn btn-secondary" href="/admin/numbering-rules"><?= ui_icon('settings') ?><span>Aturan Nomor</span></a>
+    <a class="btn btn-secondary" href="/admin/numbering-rules"><?= ui_icon('settings') ?><span>Pengaturan Nomor</span></a>
 </section>
 
 <div class="stat-grid compact-stat-grid">
-    <article class="stat-card"><span class="stat-icon blue"><?= ui_icon('archive') ?></span><div><small>Kelompok Aktif</small><strong><?= count($activeGroups) ?></strong><em>substantif + fasilitatif</em></div></article>
-    <article class="stat-card"><span class="stat-icon green"><?= ui_icon('file') ?></span><div><small>Kode Terdata</small><strong><?= $totalItems ?></strong><em>item klasifikasi</em></div></article>
-    <article class="stat-card"><span class="stat-icon orange"><?= ui_icon('database') ?></span><div><small>Sumber</small><strong>Kode.pdf</strong><em>master v0.3</em></div></article>
+    <article class="stat-card"><span class="stat-icon blue"><?= ui_icon('archive') ?></span><div><small>Kelompok Klasifikasi</small><strong><?= count($activeGroups) ?></strong><em>Kelompok yang dapat digunakan</em></div></article>
+    <article class="stat-card"><span class="stat-icon green"><?= ui_icon('file') ?></span><div><small>Kode Klasifikasi</small><strong><?= $totalItems ?></strong><em>Kode yang tersedia</em></div></article>
+    <article class="stat-card"><span class="stat-icon orange"><?= ui_icon('search') ?></span><div><small>Pencarian</small><strong>Mudah</strong><em>Cari berdasarkan kode atau nama</em></div></article>
 </div>
 
 <section class="panel section-gap">
@@ -31,27 +31,35 @@ $totalItems = array_sum(array_map(fn($g)=>(int)$g['item_count'],$activeGroups));
                 <option value="<?= e($g['code']) ?>" <?= $filters['group']===$g['code']?'selected':'' ?>><?= e($g['code']) ?> — <?= e($g['name']) ?></option>
             <?php endforeach; ?>
         </select>
-        <button class="btn btn-primary" type="submit"><?= ui_icon('filter') ?><span>Filter</span></button>
-        <a class="btn btn-secondary" href="/admin/classifications">Reset</a>
+        <button class="btn btn-primary" type="submit"><?= ui_icon('filter') ?><span>Tampilkan</span></button>
+        <a class="btn btn-secondary" href="/admin/classifications">Bersihkan</a>
     </form>
 </section>
 
 <section class="panel users-panel section-gap">
-    <div class="panel-heading"><div><span class="eyebrow">HASIL</span><h2><?= count($rows) ?> baris ditampilkan</h2><p>Kode 1–3 digit dinormalisasi menjadi tiga digit untuk pembentukan KKA; kode empat digit dipertahankan.</p></div><span class="panel-icon-soft"><?= ui_icon('archive') ?></span></div>
+    <div class="panel-heading">
+        <div>
+            <span class="eyebrow">HASIL PENCARIAN</span>
+            <h2><?= count($rows) ?> klasifikasi ditampilkan</h2>
+            <p>Pilih dan gunakan kode sesuai isi serta tujuan arsip surat.</p>
+        </div>
+        <span class="panel-icon-soft"><?= ui_icon('archive') ?></span>
+    </div>
+
     <div class="data-table-wrap">
         <table class="data-table classification-table">
-            <thead><tr><th>Jenis Arsip</th><th>Kelompok</th><th>Kode</th><th>Nama</th><th>Keterangan</th></tr></thead>
+            <thead><tr><th>Jenis Arsip</th><th>Kelompok</th><th>Kode</th><th>Nama Klasifikasi</th><th>Keterangan</th></tr></thead>
             <tbody>
             <?php foreach($rows as $row): ?>
                 <tr>
                     <td><span class="role-badge role-<?= strtolower($row['archive_type']) ?>"><?= e(ucfirst(strtolower($row['archive_type']))) ?></span></td>
                     <td><strong><?= e($row['group_code']) ?></strong><small class="table-subtext"><?= e($row['group_name']) ?></small></td>
-                    <td><code><?= e($row['code'] ?? '-') ?></code><?php if(!empty($row['raw_code']) && $row['raw_code']!==$row['code']): ?><small class="table-subtext">sumber: <?= e($row['raw_code']) ?></small><?php endif; ?></td>
+                    <td><strong><?= e($row['code'] ?? '-') ?></strong></td>
                     <td><?= e($row['name'] ?? '-') ?></td>
                     <td><small><?= nl2br(e($row['description'] ?? '')) ?></small></td>
                 </tr>
             <?php endforeach; ?>
-            <?php if(!$rows): ?><tr><td colspan="5"><div class="empty-state compact-empty"><strong>Data tidak ditemukan</strong><span>Ubah filter atau kata kunci.</span></div></td></tr><?php endif; ?>
+            <?php if(!$rows): ?><tr><td colspan="5"><div class="empty-state compact-empty"><strong>Data tidak ditemukan</strong><span>Coba gunakan kata kunci atau pilihan lain.</span></div></td></tr><?php endif; ?>
             </tbody>
         </table>
     </div>

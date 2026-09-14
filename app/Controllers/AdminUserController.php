@@ -157,7 +157,7 @@ final class AdminUserController
 
         User::adminResetPassword($userId,$password);
         AuditLog::write(Auth::id(),'RESET_USER_PASSWORD','user',$userId,['email'=>$user['email']]);
-        $_SESSION['flash_success']='Password pengguna berhasil direset.';
+        $_SESSION['flash_success']='Password pengguna berhasil diatur ulang.';
         header('Location:/admin/users'); exit;
     }
 
@@ -199,7 +199,7 @@ final class AdminUserController
         AuditLog::write(Auth::id(),'DELETE_USER','user',$userId,[
             'email'=>$originalEmail,'role'=>$user['role'],'email_reusable'=>true,
         ]);
-        $_SESSION['flash_success']='Pengguna berhasil dihapus. Email lama sekarang dapat digunakan kembali; histori tetap dipertahankan.';
+        $_SESSION['flash_success']='Pengguna berhasil dihapus. Email lama dapat digunakan kembali dan riwayat tetap tersimpan.';
         header('Location:/admin/users'); exit;
     }
 }

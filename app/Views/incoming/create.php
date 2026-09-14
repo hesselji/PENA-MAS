@@ -6,7 +6,7 @@
         <h1>Tambah surat masuk</h1>
         <p>Nomor surat berasal dari pengirim. Tanggal pencatatan dibuat otomatis ketika data disimpan.</p>
     </div>
-    <div class="heading-hint"><span><?= ui_icon('calendar') ?></span><div><strong>Pencatatan otomatis</strong><small>Waktu submit tersimpan sebagai metadata.</small></div></div>
+    <div class="heading-hint"><span><?= ui_icon('calendar') ?></span><div><strong>Pencatatan otomatis</strong><small>Waktu pencatatan tersimpan secara otomatis.</small></div></div>
 </section>
 
 <section class="panel form-panel form-panel-narrow">
@@ -22,10 +22,10 @@
                 <label class="field span-all"><span>Perihal <i>*</i></span><input name="subject" value="<?= old('subject') ?>" placeholder="Perihal surat" required><?php if(!empty($errs['subject'])):?><small class="field-error"><?= e($errs['subject']) ?></small><?php endif;?></label>
                 <label class="field span-all"><span>Kepada <i>*</i></span><input name="recipient" value="<?= old('recipient') ?>" placeholder="Contoh: Kepala BPS Kota Palangka Raya" required><?php if(!empty($errs['recipient'])):?><small class="field-error"><?= e($errs['recipient']) ?></small><?php endif;?></label>
                 <label class="field span-all"><span>Catatan</span><textarea name="notes" rows="4" placeholder="Catatan tambahan jika diperlukan"><?= old('notes') ?></textarea></label>
-                <div class="scope-card span-all"><span>Tanggal Pencatatan Sistem</span><strong><?= e(format_date_id(date('Y-m-d H:i:s'),true)) ?></strong><small>Akan diambil ulang otomatis saat tombol Simpan ditekan.</small></div>
+                <div class="scope-card span-all"><span>Waktu Pencatatan</span><strong><?= e(format_date_id(date('Y-m-d H:i:s'),true)) ?></strong><small>Waktu akan diperbarui otomatis saat surat disimpan.</small></div>
             </div>
         </div>
-        <div class="form-actions-sticky"><div class="form-security-note"><?= ui_icon('shield') ?><span>Surat masuk tidak menggunakan generator nomor surat keluar.</span></div><div><a class="btn btn-secondary" href="/incoming">Batal</a><button class="btn btn-primary" type="submit"><?= ui_icon('plus') ?><span>Simpan Surat Masuk</span></button></div></div>
+        <div class="form-actions-sticky"><div class="form-security-note"><?= ui_icon('shield') ?><span>Nomor surat masuk mengikuti nomor yang tercantum pada surat pengirim.</span></div><div><a class="btn btn-secondary" href="/incoming">Batal</a><button class="btn btn-primary" type="submit"><?= ui_icon('plus') ?><span>Simpan Surat Masuk</span></button></div></div>
     </form>
 </section>
 <?php unset($_SESSION['old']); ?>

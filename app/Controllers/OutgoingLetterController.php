@@ -183,15 +183,15 @@ final class OutgoingLetterController
 
             unset($_SESSION['old']);
             if ($count === 1) {
-                $_SESSION['flash_success']='Nomor surat berhasil di-generate: '.$first['letter_number'];
+                $_SESSION['flash_success']='Nomor surat berhasil dibuat: '.$first['letter_number'];
                 header('Location:/letters/'.$first['id']);
             } else {
-                $_SESSION['flash_success']=$count.' nomor surat berhasil di-generate sekaligus: '.$first['letter_number'].' s.d. '.$last['letter_number'];
+                $_SESSION['flash_success']=$count.' nomor surat berhasil dibuat sekaligus: '.$first['letter_number'].' s.d. '.$last['letter_number'];
                 header('Location:/letters');
             }
             exit;
         } catch(\Throwable $e) {
-            $_SESSION['flash_error']='Gagal generate nomor: '.$e->getMessage();
+            $_SESSION['flash_error']='Nomor surat belum berhasil dibuat. Periksa kembali data yang diisi lalu coba lagi.';
             $_SESSION['old']=$_POST;
             header('Location:/letters/create');
             exit;
@@ -284,7 +284,7 @@ final class OutgoingLetterController
         }
         OutgoingLetter::cancel((int)$id,(int)Auth::id(),$reason);
         AuditLog::write(Auth::id(),'CANCEL_NUMBER','outgoing_letter',(int)$id,['reason'=>$reason]);
-        $_SESSION['flash_success']='Nomor ditandai DIBATALKAN dan tetap tersimpan sebagai audit trail.';
+        $_SESSION['flash_success']='Nomor berhasil dibatalkan dan tetap tersimpan dalam riwayat.';
         header('Location:/letters/'.$id);
         exit;
     }

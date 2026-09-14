@@ -5,15 +5,16 @@ $oldData = $_SESSION['old'] ?? [];
 $isAdmin = Auth::isAdmin();
 $recipientCandidates = $recipientCandidates ?? [];
 $selectedRecipientIds = array_map('intval', is_array($oldData['selected_user_ids'] ?? null) ? $oldData['selected_user_ids'] : []);
+$recipientRoleLabels = ['ADMIN' => 'Administrator', 'USER' => 'Pengguna Surat Keluar', 'INCOMING' => 'Petugas Surat Masuk'];
 ?>
 <section class="page-heading">
     <div>
         <a class="breadcrumb" href="/letters"><?= ui_icon('arrow-left') ?> Agenda Surat Keluar</a>
-        <span class="eyebrow">GENERATE NOMOR</span>
+        <span class="eyebrow">BUAT NOMOR SURAT</span>
         <h1>Buat nomor surat keluar</h1>
-        <p>Lengkapi data surat. Sequence 62710 dan 62711 berjalan terpisah sesuai aturan jenis surat.</p>
+        <p>Lengkapi informasi surat. Nomor urut untuk kode unit 62710 dan 62711 dikelola terpisah sesuai jenis surat.</p>
     </div>
-    <div class="heading-hint"><span><?= ui_icon('shield') ?></span><div><strong>Sequence aman</strong><small>Nomor dibuat melalui transaksi database dan row lock.</small></div></div>
+    <div class="heading-hint"><span><?= ui_icon('shield') ?></span><div><strong>Nomor urut terjaga</strong><small>Sistem memastikan setiap nomor tersimpan dengan urutan yang benar dan tidak ganda.</small></div></div>
 </section>
 
 <div class="create-layout">
@@ -40,7 +41,7 @@ $selectedRecipientIds = array_map('intval', is_array($oldData['selected_user_ids
                                 </option>
                             <?php endforeach; ?>
                         </select>
-                        <small class="field-help" id="dateRuleHelp">Pilih jenis surat untuk melihat aturan tanggal dan jalur sequence.</small>
+                        <small class="field-help" id="dateRuleHelp">Pilih jenis surat untuk melihat ketentuan tanggal dan penomoran.</small>
                         <?php if (!empty($errs['letter_type_id'])): ?><small class="field-error"><?= e($errs['letter_type_id']) ?></small><?php endif; ?>
                     </label>
 
@@ -83,7 +84,7 @@ $selectedRecipientIds = array_map('intval', is_array($oldData['selected_user_ids
                                     <option value="<?= e($s['code']) ?>" data-prefix="<?= e($s['prefix']) ?>" <?= ($oldData['sensitivity'] ?? '') === $s['code'] ? 'selected' : '' ?>><?= e($s['name']) ?></option>
                                 <?php endforeach; ?>
                             </select>
-                            <small class="field-help">Rahasia dan Sangat Rahasia hanya dapat dibuat oleh Admin.</small>
+                            <small class="field-help">Rahasia dan Sangat Rahasia hanya dapat dibuat oleh Administrator.</small>
                             <?php if (!empty($errs['sensitivity'])): ?><small class="field-error"><?= e($errs['sensitivity']) ?></small><?php endif; ?>
                         </label>
                     <?php else: ?>
@@ -91,7 +92,7 @@ $selectedRecipientIds = array_map('intval', is_array($oldData['selected_user_ids
                             <span>Sifat Surat <i>*</i></span>
                             <input type="hidden" name="sensitivity" value="BIASA">
                             <input value="Biasa" readonly aria-readonly="true">
-                            <small class="field-help">Akun USER hanya dapat membuat surat Biasa. Prefix nomor otomatis B.</small>
+                            <small class="field-help">Akun pengguna hanya dapat membuat surat dengan sifat Biasa.</small>
                         </label>
                         <select id="sensitivity" hidden><option value="BIASA" data-prefix="B" selected>Biasa</option></select>
                     <?php endif; ?>
@@ -118,7 +119,7 @@ $selectedRecipientIds = array_map('intval', is_array($oldData['selected_user_ids
                     </label>
 
                     <div class="scope-card">
-                        <span>Master Klasifikasi</span>
+                        <span>Klasifikasi Arsip</span>
                         <strong id="scopePreview">—</strong>
                         <small id="scopeDescription">Kelompok KKA ditentukan oleh Jenis Arsip.</small>
                     </div>
@@ -127,7 +128,7 @@ $selectedRecipientIds = array_map('intval', is_array($oldData['selected_user_ids
                         <span>Cari Kode / Nama Klasifikasi</span>
                         <div class="toolbar-search kka-search-box"><?= ui_icon('search') ?><input type="search" id="classificationSearch" placeholder="Contoh: pajak, perjalanan dinas, kepegawaian..." autocomplete="off"></div>
                         <div class="kka-search-results" id="classificationSearchResults" hidden></div>
-                        <small class="field-help">Ketik minimal 2 karakter. Klik hasil untuk memilih kelompok dan kode otomatis.</small>
+                        <small class="field-help">Ketik minimal 2 karakter, lalu pilih hasil yang sesuai.</small>
                     </div>
 
                     <label class="field" id="parentField">
@@ -197,12 +198,12 @@ $selectedRecipientIds = array_map('intval', is_array($oldData['selected_user_ids
                                         <label class="recipient-user-item" data-recipient-user data-search="<?= e($searchText) ?>">
                                             <input type="checkbox" name="selected_user_ids[]" value="<?= (int)$candidate['id'] ?>" data-recipient-checkbox data-recipient-name="<?= e($candidate['name']) ?>" <?= $checked ? 'checked' : '' ?>>
                                             <span class="avatar avatar-sm"><?= e(user_initials($candidate['name'])) ?></span>
-                                            <span class="recipient-user-copy"><strong><?= e($candidate['name']) ?></strong><small><?= e($candidate['work_team_name'] ?? 'Tanpa tim') ?> · <?= e($candidate['email']) ?></small></span>
-                                            <span class="role-badge role-<?= strtolower(e($candidate['role'])) ?>"><?= e($candidate['role']) ?></span>
+                                            <span class="recipient-user-copy"><strong><?= e($candidate['name']) ?></strong><small><?= e($candidate['work_team_name'] ?? 'Tanpa tim') ?> - <?= e($candidate['email']) ?></small></span>
+                                            <span class="role-badge role-<?= strtolower(e($candidate['role'])) ?>"><?= e($recipientRoleLabels[$candidate['role']] ?? $candidate['role']) ?></span>
                                         </label>
                                     <?php endforeach; ?>
                                 </div>
-                                <div class="recipient-picker-footer"><span id="recipientPickerVisibleCount"><?= count($recipientCandidates) ?></span> akun ditampilkan · tombol “Pilih Semua Hasil” hanya memilih hasil pencarian yang sedang terlihat.</div>
+                                <div class="recipient-picker-footer"><span id="recipientPickerVisibleCount"><?= count($recipientCandidates) ?></span> akun ditampilkan - tombol “Pilih Semua Hasil” hanya memilih hasil pencarian yang sedang terlihat.</div>
                             <?php else: ?>
                                 <div class="empty-inline">Belum ada akun aktif yang dapat dipilih. Gunakan input manual atau paste banyak nama.</div>
                             <?php endif; ?>
@@ -211,30 +212,30 @@ $selectedRecipientIds = array_map('intval', is_array($oldData['selected_user_ids
                 </div>
 
                 <div class="form-grid form-grid-2 recipient-common-fields">
-                    <label class="field span-all"><span>Catatan Tambahan</span><textarea name="notes" rows="4" placeholder="Catatan yang sama untuk seluruh surat dalam batch..."><?= old('notes') ?></textarea></label>
+                    <label class="field span-all"><span>Catatan Tambahan</span><textarea name="notes" rows="4" placeholder="Catatan yang sama untuk seluruh surat yang dibuat sekaligus..."><?= old('notes') ?></textarea></label>
                 </div>
             </div>
 
             <div class="form-actions-sticky">
-                <div class="form-security-note"><?= ui_icon('lock') ?><span>Role, tanggal, anggaran, KKA, dan sifat surat divalidasi ulang di server.</span></div>
-                <div><a class="btn btn-secondary" href="/letters">Batal</a><button class="btn btn-primary btn-lg" type="submit"><?= ui_icon('mail-plus') ?><span id="generateButtonLabel">Generate & Simpan Nomor</span></button></div>
+                <div class="form-security-note"><?= ui_icon('lock') ?><span>Sistem memeriksa kembali data surat sebelum nomor disimpan.</span></div>
+                <div><a class="btn btn-secondary" href="/letters">Batal</a><button class="btn btn-primary btn-lg" type="submit"><?= ui_icon('mail-plus') ?><span id="generateButtonLabel">Buat & Simpan Nomor</span></button></div>
             </div>
         </form>
     </section>
 
     <aside class="create-aside">
         <section class="panel preview-panel sticky-panel">
-            <span class="eyebrow">LIVE PREVIEW</span>
+            <span class="eyebrow">PRATINJAU NOMOR</span>
             <h3>Perkiraan format nomor</h3>
-            <p id="rulePreviewText">Pilih jenis surat untuk melihat pattern yang digunakan.</p>
+            <p id="rulePreviewText">Pilih jenis surat untuk melihat bentuk nomor yang akan digunakan.</p>
             <div class="number-preview dynamic-number-preview" id="numberPreview">?-???/62710/KKA.000/<?= date('Y') ?></div>
-            <div class="sequence-rule-card" id="sequenceRuleCard"><strong>Jalur sequence</strong><span>Pilih jenis surat.</span></div>
+            <div class="sequence-rule-card" id="sequenceRuleCard"><strong>Urutan Nomor</strong><span>Pilih jenis surat.</span></div>
             <div class="preview-legend">
-                <div><i class="blue"></i><span>Prefix & sequence</span></div>
-                <div><i class="green"></i><span>Kode unit / jalur</span></div>
+                <div><i class="blue"></i><span>Awalan dan nomor urut</span></div>
+                <div><i class="green"></i><span>Kode unit</span></div>
                 <div><i class="orange"></i><span>Klasifikasi KKA</span></div>
             </div>
-            <div class="preview-info"><span><?= ui_icon('info') ?></span><p>62710 dan 62711 mempunyai sequence masing-masing. Angka final tetap dibuat oleh backend agar tidak duplikat.</p></div>
+            <div class="preview-info"><span><?= ui_icon('info') ?></span><p>Kode unit 62710 dan 62711 memiliki urutan nomor masing-masing sehingga nomor tetap tertib dan tidak ganda.</p></div>
         </section>
     </aside>
 </div>

@@ -3,7 +3,7 @@
 
   const $ = (sel, root = document) => root.querySelector(sel);
   const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
-  const escapeHtml = (v) => String(v ?? '').replace(/[&<>'"]/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+  const escapeHtml = (v) => String(v ?? '').replace(/[&<>'"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[c]));
 
   // Theme
   const root = document.documentElement;
@@ -169,7 +169,7 @@
       const code = child.value || '000';
       let year = new Date().getFullYear().toString();
       if (letterDate?.value) year = letterDate.value.slice(0, 4);
-      return {'{PREFIX}':prefix,'{SEQ}':'???','{SEQ3}':'???','{SEQ4}':'????','{UNIT}':unit,'{KKA}':`${group}.${code}`,'{YEAR}':year};
+      return { '{PREFIX}': prefix, '{SEQ}': '???', '{SEQ3}': '???', '{SEQ4}': '????', '{UNIT}': unit, '{KKA}': `${group}.${code}`, '{YEAR}': year };
     };
 
     const refreshNumberPreview = () => {
@@ -181,10 +181,10 @@
       let preview = pattern;
       Object.entries(previewTokens()).forEach(([token, value]) => { preview = preview.split(token).join(value); });
       numberPreview.textContent = preview;
-      if (rulePreviewText) rulePreviewText.textContent = typeOption?.value ? `Rule aktif: ${rule} • ${pattern}` : 'Pilih jenis surat untuk melihat pattern yang digunakan.';
+      if (rulePreviewText) rulePreviewText.textContent = typeOption?.value ? `Pengaturan aktif: ${unit}` : 'Pilih jenis surat untuk melihat bentuk nomor yang akan digunakan.';
       if (sequenceRuleCard) sequenceRuleCard.innerHTML = typeOption?.value
-        ? `<strong>Jalur sequence</strong><span>${escapeHtml(unit)} mempunyai urutan independen per tahun.</span>`
-        : '<strong>Jalur sequence</strong><span>Pilih jenis surat.</span>';
+        ? `<strong>Urutan Nomor</strong><span>Kode unit ${escapeHtml(unit)} memiliki urutan nomor tersendiri setiap tahun.</span>`
+        : '<strong>Urutan Nomor</strong><span>Pilih jenis surat.</span>';
     };
 
     const syncDateRule = () => {
@@ -194,8 +194,8 @@
       const unit = option?.dataset?.unit || '';
       const today = new Date();
       const yyyy = today.getFullYear();
-      const mm = String(today.getMonth()+1).padStart(2,'0');
-      const dd = String(today.getDate()).padStart(2,'0');
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
       const todayValue = `${yyyy}-${mm}-${dd}`;
       if (mode === 'NO_PAST') {
         letterDate.min = todayValue;
@@ -203,7 +203,7 @@
         if (dateRuleHelp) dateRuleHelp.textContent = `Jalur ${unit || '62710'}: tanggal sebelum hari ini (H-) tidak diperbolehkan.`;
       } else {
         letterDate.removeAttribute('min');
-        if (dateRuleHelp) dateRuleHelp.textContent = option?.value ? `Jalur ${unit}: tanggal surat dapat dipilih sesuai kebutuhan pencatatan.` : 'Pilih jenis surat untuk melihat aturan tanggal dan jalur sequence.';
+        if (dateRuleHelp) dateRuleHelp.textContent = option?.value ? `Kode unit ${unit}: tanggal surat dapat dipilih sesuai kebutuhan pencatatan.` : 'Pilih jenis surat untuk melihat ketentuan tanggal dan penomoran.';
       }
       refreshNumberPreview();
     };
@@ -214,7 +214,7 @@
       refreshNumberPreview();
       if (!groupCode) { child.innerHTML = '<option value="">Pilih kelompok KKA dahulu</option>'; return; }
       try {
-        const res = await fetch(`/api/classification-items?group=${encodeURIComponent(groupCode)}`, {headers:{'Accept':'application/json'}});
+        const res = await fetch(`/api/classification-items?group=${encodeURIComponent(groupCode)}`, { headers: { 'Accept': 'application/json' } });
         const json = await res.json();
         if (!json.success) throw new Error(json.message || 'Gagal memuat kode klasifikasi');
         fill(child, json.data, 'Pilih kode klasifikasi', selected);
@@ -236,7 +236,7 @@
       if (!archiveType) return;
 
       try {
-        const res = await fetch(`/api/classification-groups?archive_type=${encodeURIComponent(archiveType)}`, {headers:{'Accept':'application/json'}});
+        const res = await fetch(`/api/classification-groups?archive_type=${encodeURIComponent(archiveType)}`, { headers: { 'Accept': 'application/json' } });
         const json = await res.json();
         if (!json.success) throw new Error(json.message || 'Gagal memuat kelompok klasifikasi');
         const selectedParent = forcedParent || (restore ? (parent.dataset.old || '') : '') || (isBudgetLocked() ? 'KU' : '');
@@ -260,7 +260,7 @@
           const selectedChild = forcedChild || (restore ? (child.dataset.old || '') : '');
           await loadItems(parentValue, selectedChild);
         }
-        if (restore) { parent.dataset.old=''; child.dataset.old=''; }
+        if (restore) { parent.dataset.old = ''; child.dataset.old = ''; }
       } catch (_) {
         parent.innerHTML = '<option value="">Gagal memuat data</option>';
       }
@@ -301,14 +301,14 @@
       searchTimer = setTimeout(async () => {
         classificationSearchResults.hidden = false;
         classificationSearchResults.innerHTML = '<div class="kka-result-status">Mencari klasifikasi...</div>';
-        const params = new URLSearchParams({q});
+        const params = new URLSearchParams({ q });
         if (isBudgetLocked()) {
-          params.set('archive_type','FASILITATIF'); params.set('group','KU');
+          params.set('archive_type', 'FASILITATIF'); params.set('group', 'KU');
         } else if (archive.value) {
-          params.set('archive_type',archive.value);
+          params.set('archive_type', archive.value);
         }
         try {
-          const res = await fetch(`/api/classification-search?${params.toString()}`, {headers:{'Accept':'application/json'}});
+          const res = await fetch(`/api/classification-search?${params.toString()}`, { headers: { 'Accept': 'application/json' } });
           const json = await res.json();
           if (!json.success) throw new Error('Gagal mencari');
           if (!json.data.length) {
@@ -407,8 +407,8 @@
       if (recipientCount) recipientCount.textContent = String(total);
       if (generateLabel) {
         generateLabel.textContent = total > 1
-          ? `Generate ${total} Nomor Sekaligus`
-          : 'Generate & Simpan Nomor';
+          ? `Buat ${total} Nomor Sekaligus`
+          : 'Buat & Simpan Nomor';
       }
       recipientBuilder.classList.toggle('has-batch', total > 1);
     };
@@ -452,7 +452,7 @@
         const submit = $('button[type="submit"]', letterForm);
         submit?.removeAttribute('aria-busy');
         recipientBuilder.classList.add('recipient-builder-invalid');
-        recipientBuilder.scrollIntoView({behavior:'smooth',block:'center'});
+        recipientBuilder.scrollIntoView({ behavior: 'smooth', block: 'center' });
         window.setTimeout(() => recipientBuilder.classList.remove('recipient-builder-invalid'), 1800);
         return;
       }
@@ -461,10 +461,10 @@
         letterForm.classList.remove('is-loading');
         const submit = $('button[type="submit"]', letterForm);
         submit?.removeAttribute('aria-busy');
-        window.alert('Maksimal 200 tujuan dalam satu kali generate.');
+        window.alert('Maksimal 200 tujuan dalam satu kali pembuatan nomor.');
         return;
       }
-      if (total > 1 && !window.confirm(`Generate ${total} nomor surat berbeda dalam satu batch?`)) {
+      if (total > 1 && !window.confirm(`Buat ${total} nomor surat sekaligus?`)) {
         event.preventDefault();
         letterForm.classList.remove('is-loading');
         const submit = $('button[type="submit"]', letterForm);
@@ -474,6 +474,56 @@
 
     filterRecipientUsers();
     refreshRecipientSummary();
+  }
+})();
+
+/* ================================================================
+   PENA MAS PRODUCTION UI - motion and page reveal
+   ================================================================ */
+(() => {
+  'use strict';
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const finePointer = window.matchMedia('(pointer: fine)').matches;
+
+  // Consistent page entrance animation for internal pages.
+  if (!document.body.classList.contains('app-body') || reduceMotion) return;
+  const blocks = Array.from(document.querySelectorAll('.content-shell > .page-heading, .content-shell > .metric-grid, .content-shell > .dashboard-primary-grid, .content-shell > .dashboard-secondary-grid, .content-shell > .panel, .content-shell > .create-layout, .content-shell > .detail-layout, .content-shell > .number-hero-card, .content-shell > .admin-grid-2, .content-shell > .stat-grid'));
+  blocks.forEach((el, index) => {
+    el.classList.add('ui-reveal');
+    el.style.transitionDelay = `${Math.min(index * 45, 180)}ms`;
+  });
+
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target);
+      });
+    }, {
+      threshold: 0,
+      rootMargin: '0px 0px 60px 0px'
+    });
+
+    blocks.forEach((el) => observer.observe(el));
+
+  } else {
+    blocks.forEach((el) => el.classList.add('is-visible'));
+  }
+  /*
+   * Panel katalog sangat panjang.
+   * Pastikan tabel langsung terlihat tanpa menunggu
+   * persentase IntersectionObserver.
+   */
+  const classificationPanel =
+    document.querySelector('.classification-table')
+      ?.closest('.users-panel');
+
+  if (classificationPanel) {
+    classificationPanel.classList.add('is-visible');
+    classificationPanel.style.transitionDelay = '0ms';
   }
 })();
 

@@ -31,6 +31,15 @@ function nav_active(string $prefix, bool $exact = false): string {
     $active = $exact ? $path === $prefix : str_starts_with($path, $prefix);
     return $active ? ' active' : '';
 }
+
+function display_user_name(?string $name): string {
+    $clean = trim((string)$name);
+    $clean = preg_replace('/\s+Prototype$/iu', '', $clean) ?? $clean;
+    if (strcasecmp($clean, 'Admin') === 0) return 'Administrator';
+    if (strcasecmp($clean, 'User') === 0) return 'Pengguna';
+    return $clean !== '' ? $clean : 'Pengguna';
+}
+
 function user_initials(?string $name): string {
     $parts = preg_split('/\s+/', trim((string)$name)) ?: [];
     $parts = array_values(array_filter($parts));

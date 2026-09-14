@@ -3,7 +3,7 @@
         <a class="breadcrumb" href="/admin/users"><?= ui_icon('arrow-left') ?> Pengguna</a>
         <span class="eyebrow">ADMINISTRASI</span>
         <h1>Edit pengguna</h1>
-        <p>Perbarui identitas, role, dan tim kerja pengguna PENA MAS.</p>
+        <p>Perbarui identitas, hak akses, dan tim kerja pengguna PENA MAS.</p>
     </div>
 </section>
 
@@ -27,11 +27,11 @@
 
                 <?php $selectedRole = old('role', (string) $user['role']); ?>
                 <label class="field">
-                    <span>Role <i>*</i></span>
+                    <span>Hak Akses <i>*</i></span>
                     <select name="role" required>
-                        <option value="USER" <?= $selectedRole === 'USER' ? 'selected' : '' ?>>USER — Surat Keluar</option>
-                        <option value="INCOMING" <?= $selectedRole === 'INCOMING' ? 'selected' : '' ?>>INCOMING — Petugas Surat Masuk</option>
-                        <option value="ADMIN" <?= $selectedRole === 'ADMIN' ? 'selected' : '' ?>>ADMIN — Akses Administrasi</option>
+                        <option value="USER" <?= $selectedRole === 'USER' ? 'selected' : '' ?>>Pengguna Surat Keluar</option>
+                        <option value="INCOMING" <?= $selectedRole === 'INCOMING' ? 'selected' : '' ?>>Petugas Surat Masuk</option>
+                        <option value="ADMIN" <?= $selectedRole === 'ADMIN' ? 'selected' : '' ?>>Administrator</option>
                     </select>
                     <?php if (!empty($errors['role'])): ?><small class="field-error"><?= e($errors['role']) ?></small><?php endif; ?>
                 </label>
@@ -48,7 +48,7 @@
                 <div class="field span-all">
                     <span>Status Akun</span>
                     <div><span class="badge <?= $user['is_active'] ? 'badge-active' : 'badge-cancelled' ?>"><i></i><?= $user['is_active'] ? 'Aktif' : 'Dibekukan' ?></span></div>
-                    <small class="field-help">Status akun diubah melalui tombol Bekukan/Aktifkan pada daftar pengguna.</small>
+                    <small class="field-help">Status akun dapat diubah dari halaman daftar pengguna.</small>
                 </div>
             </div>
         </div>
