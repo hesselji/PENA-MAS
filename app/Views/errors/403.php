@@ -1,0 +1,1 @@
+<section class="error-page-modern"><div class="error-orbit"><span>403</span></div><span class="eyebrow">AKSES DITOLAK</span><h1>Anda tidak memiliki izin</h1><p>Halaman ini hanya dapat diakses oleh pengguna dengan hak akses yang sesuai.</p><a class="btn btn-primary" href="/dashboard"><?= ui_icon('arrow-left') ?> Kembali ke Dashboard</a></section>
