@@ -42,7 +42,7 @@ if ($me) {
     <meta name="description" content="PENA MAS - Penomoran Agenda dan Manajemen Arsip Surat">
     <title><?= e($appName) ?></title>
     <link rel="icon" href="/assets/images/penamas-icon.png" type="image/png">
-    <link rel="stylesheet" href="/assets/css/style.css?v=20260914-notifications-v1">
+    <link rel="stylesheet" href="/assets/css/style.css?v=20260915-reports-v2">
 </head>
 <body class="<?= $me ? 'app-body' : 'auth-body' ?>">
 <?php if ($me): ?>
@@ -73,6 +73,9 @@ if ($me) {
                 <a class="nav-item<?= nav_active('/incoming/create', true) ?>" href="/incoming/create"><span class="nav-icon"><?= ui_icon('plus') ?></span><span>Tambah Surat Masuk</span></a>
                 <a class="nav-item<?= ($path === '/incoming' || (str_starts_with($path, '/incoming/') && $path !== '/incoming/create')) ? ' active' : '' ?>" href="/incoming"><span class="nav-icon"><?= ui_icon('archive') ?></span><span>Agenda Surat Masuk</span></a>
             <?php endif; ?>
+
+            <span class="nav-section-label nav-section-spaced">Laporan</span>
+            <a class="nav-item<?= nav_active('/reports') ?>" href="/reports"><span class="nav-icon"><?= ui_icon('chart') ?></span><span>Laporan & Ekspor</span></a>
 
             <span class="nav-section-label nav-section-spaced">Akun</span>
             <a class="nav-item<?= nav_active('/account/password', true) ?>" href="/account/password"><span class="nav-icon"><?= ui_icon('lock') ?></span><span>Ganti Password</span></a>

@@ -24,6 +24,7 @@ use App\Controllers\DashboardController;
 use App\Controllers\IncomingLetterController;
 use App\Controllers\NotificationController;
 use App\Controllers\OutgoingLetterController;
+use App\Controllers\ReportController;
 
 try {
     Env::load(dirname(__DIR__) . '/.env');
@@ -49,6 +50,10 @@ $router->get('/account/password', [AuthController::class, 'changePasswordForm'])
 $router->post('/account/password', [AuthController::class, 'updatePassword']);
 
 $router->get('/dashboard', [DashboardController::class, 'index']);
+
+$router->get('/reports', [ReportController::class, 'index']);
+$router->get('/reports/export', [ReportController::class, 'exportCsv']);
+$router->get('/reports/print', [ReportController::class, 'printView']);
 
 $router->get('/letters', [OutgoingLetterController::class, 'index']);
 $router->get('/letters/create', [OutgoingLetterController::class, 'create']);

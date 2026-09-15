@@ -11382,3 +11382,885 @@ backdrop-filter:
     }
 
 }
+
+/* ================================================================
+   LAPORAN & EKSPOR
+   ================================================================ */
+
+.report-heading {
+    align-items: flex-end;
+}
+
+.report-heading-actions,
+.report-result-actions {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    flex-wrap: wrap;
+}
+
+.report-source-switch {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.report-source-option {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    color: var(--text);
+    text-decoration: none;
+    background: linear-gradient(145deg, rgba(13,31,47,.80), rgba(8,23,37,.78));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.025);
+    transition: border-color .18s ease, transform .18s ease, background .18s ease, box-shadow .18s ease;
+}
+
+.report-source-option:hover {
+    transform: translateY(-2px);
+    border-color: rgba(35,174,230,.34);
+}
+
+.report-source-option.active {
+    border-color: rgba(31,177,232,.50);
+    background: linear-gradient(145deg, rgba(12,56,84,.88), rgba(7,31,50,.88));
+    box-shadow: 0 12px 34px rgba(0,116,176,.09), inset 0 1px 0 rgba(255,255,255,.04);
+}
+
+.report-source-icon {
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    display: grid;
+    place-items: center;
+    border-radius: 11px;
+}
+
+.report-source-icon .ui-icon { width: 19px; height: 19px; }
+.report-source-icon.blue { color: #28bff0; background: rgba(21,150,207,.12); }
+.report-source-icon.green { color: #75cf42; background: rgba(92,190,54,.12); }
+
+.report-source-option strong,
+.report-source-option small { display: block; }
+.report-source-option strong { font-size: 11px; }
+.report-source-option small { margin-top: 3px; color: var(--muted); font-size: 8px; line-height: 1.45; }
+
+.report-filter-panel {
+    margin-bottom: 16px;
+}
+
+.report-panel-title,
+.report-result-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 16px;
+}
+
+.report-panel-title h2,
+.report-result-head h2 {
+    margin: 4px 0 4px;
+    font-size: 18px;
+}
+
+.report-panel-title p,
+.report-result-head p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 9px;
+    line-height: 1.55;
+}
+
+.report-period-chip {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 34px;
+    padding: 0 11px;
+    border: 1px solid rgba(77,151,197,.22);
+    border-radius: 9px;
+    color: #9db3c4;
+    background: rgba(7,25,40,.60);
+    font-size: 8px;
+    white-space: nowrap;
+}
+
+.report-period-chip .ui-icon { width: 14px; height: 14px; }
+
+.report-filter-form {
+    display: grid;
+    grid-template-columns: minmax(220px, 1.6fr) repeat(2, minmax(145px, .72fr));
+    gap: 11px;
+    align-items: end;
+}
+
+.report-field {
+    min-width: 0;
+    display: grid;
+    gap: 6px;
+}
+
+.report-field > span {
+    color: #a9becd;
+    font-size: 8px;
+    font-weight: 700;
+}
+
+.report-field input,
+.report-field select,
+.report-search-shell {
+    width: 100%;
+    min-width: 0;
+    height: 43px;
+    border: 1px solid rgba(74,153,202,.28) !important;
+    border-radius: 10px !important;
+    color: #e9f4fa !important;
+    background-color: #0a2236 !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.025) !important;
+    outline: none !important;
+}
+
+.report-field input,
+.report-field select {
+    padding: 0 12px !important;
+}
+
+.report-field select {
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 38px !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%2386b9d8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"), linear-gradient(145deg, rgba(12,39,61,.98), rgba(7,29,47,.98)) !important;
+    background-repeat: no-repeat, no-repeat !important;
+    background-position: right 12px center, center !important;
+    background-size: 15px, 100% 100% !important;
+}
+
+.report-field select option { color: #eef7fc; background: #0c2234; }
+
+.report-field input:focus,
+.report-field select:focus,
+.report-search-shell:focus-within {
+    border-color: rgba(20,190,243,.78) !important;
+    box-shadow: 0 0 0 3px rgba(20,180,235,.06) !important;
+}
+
+.report-search-shell {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 0 12px;
+}
+
+.report-search-shell > .ui-icon {
+    width: 17px;
+    height: 17px;
+    flex: 0 0 auto;
+    color: #7898ac;
+}
+
+.report-search-shell input {
+    height: 100%;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.report-filter-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding-top: 2px;
+}
+
+.report-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.report-summary-card {
+    position: relative;
+    min-width: 0;
+    min-height: 126px;
+    padding: 16px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: linear-gradient(145deg, rgba(15,31,45,.93), rgba(10,25,38,.92));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.025);
+    overflow: hidden;
+}
+
+.report-summary-card::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    opacity: .85;
+}
+
+.report-summary-card.tone-blue::after { background: #1aa7de; }
+.report-summary-card.tone-green::after { background: #68bf35; }
+.report-summary-card.tone-orange::after { background: #ef9b22; }
+.report-summary-card.tone-purple::after { background: #9f78da; }
+
+.report-summary-icon {
+    order: 2;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    background: rgba(24,156,211,.10);
+    color: #31bdf0;
+}
+
+.tone-green .report-summary-icon { color: #7ad64b; background: rgba(98,188,55,.10); }
+.tone-orange .report-summary-icon { color: #f2a12a; background: rgba(240,148,31,.10); }
+.tone-purple .report-summary-icon { color: #b996ef; background: rgba(151,107,210,.10); }
+.report-summary-icon .ui-icon { width: 18px; height: 18px; }
+
+.report-summary-card small,
+.report-summary-card strong,
+.report-summary-card p { display: block; }
+.report-summary-card small { color: #91a8b9; font-size: 9px; }
+.report-summary-card strong { margin-top: 14px; color: #f4f8fb; font-size: 27px; line-height: 1; }
+.report-summary-card p { margin: 8px 0 0; color: var(--muted); font-size: 8px; line-height: 1.45; }
+.report-summary-card .report-summary-date { font-size: 14px; line-height: 1.25; }
+
+.report-result-panel { overflow: hidden; }
+.report-result-head { margin-bottom: 13px; }
+.report-result-actions { flex: 0 0 auto; }
+.report-table-wrap { max-width: 100%; }
+.report-table th:first-child,
+.report-table td:first-child { width: 46px; }
+.report-table td small { display: block; margin-top: 4px; }
+.report-empty { padding: 48px 20px; }
+
+@media (max-width: 1180px) {
+    .report-filter-form { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .report-field-search { grid-column: 1 / -1; }
+    .report-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 760px) {
+    .report-heading { align-items: stretch; }
+    .report-heading-actions { width: 100%; display: grid; grid-template-columns: 1fr 1fr; }
+    .report-heading-actions .btn { width: 100%; justify-content: center; }
+    .report-source-switch { grid-template-columns: 1fr; }
+    .report-panel-title,
+    .report-result-head { display: block; }
+    .report-period-chip { margin-top: 11px; white-space: normal; }
+    .report-filter-form { grid-template-columns: 1fr; }
+    .report-field-search { grid-column: auto; }
+    .report-filter-actions { grid-column: auto; display: grid; grid-template-columns: 1fr 1fr; }
+    .report-filter-actions .btn { width: 100%; justify-content: center; }
+    .report-summary-grid { grid-template-columns: 1fr; }
+    .report-summary-card { min-height: 112px; }
+    .report-result-actions { margin-top: 12px; }
+
+    .report-table-wrap { overflow: visible; }
+    .report-table,
+    .report-table tbody,
+    .report-table tr,
+    .report-table td { display: block; width: 100%; }
+    .report-table thead { display: none; }
+    .report-table tbody { display: grid; gap: 10px; }
+    .report-table tr {
+        padding: 10px 13px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: rgba(10,27,42,.55);
+    }
+    .report-table td,
+    .report-table td:first-child {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 112px minmax(0, 1fr);
+        gap: 9px;
+        padding: 8px 0 !important;
+        border: 0 !important;
+        border-bottom: 1px solid rgba(80,133,166,.12) !important;
+        text-align: left !important;
+    }
+    .report-table td:last-child { border-bottom: 0 !important; }
+    .report-table td::before {
+        content: attr(data-label);
+        color: #718b9d;
+        font-size: 8px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+    }
+}
+
+@media (max-width: 460px) {
+    .report-heading-actions,
+    .report-filter-actions { grid-template-columns: 1fr; }
+    .report-table td { grid-template-columns: 90px minmax(0, 1fr); }
+}
+
+/* ================================================================
+   PENA MAS - REPORT PAGE SPACING POLISH
+   Khusus halaman Laporan & Ekspor
+   ================================================================ */
+
+
+/* ================================================================
+   PANEL PENYARINGAN
+   ================================================================ */
+
+.report-filter-panel {
+    padding:
+        22px 24px 24px !important;
+
+    margin-bottom:
+        18px !important;
+}
+
+
+/* Judul PENYARINGAN + periode */
+.report-panel-title {
+    margin-bottom:
+        22px !important;
+
+    gap:
+        24px !important;
+}
+
+
+/* beri napas pada label kecil PENYARINGAN */
+.report-panel-title .eyebrow {
+    display:
+        inline-block;
+
+    margin-bottom:
+        4px;
+}
+
+
+/* Atur isi laporan */
+.report-panel-title h2 {
+    margin:
+        5px 0 6px !important;
+
+    line-height:
+        1.25;
+}
+
+
+/* teks penjelasan */
+.report-panel-title p {
+    max-width:
+        720px;
+
+    line-height:
+        1.65 !important;
+}
+
+
+/* chip periode kanan atas */
+.report-period-chip {
+    min-height:
+        38px !important;
+
+    padding:
+        0 14px !important;
+
+    margin-top:
+        1px;
+
+    border-radius:
+        10px !important;
+}
+
+
+/* ================================================================
+   FORM PENYARINGAN
+   ================================================================ */
+
+.report-filter-form {
+    column-gap:
+        14px !important;
+
+    row-gap:
+        15px !important;
+}
+
+
+/* jarak label ke input */
+.report-field {
+    gap:
+        8px !important;
+}
+
+
+/* label: Pencarian, Dari tanggal, Tim kerja, dll */
+.report-field > span {
+    padding-left:
+        2px;
+
+    font-size:
+        9px !important;
+
+    line-height:
+        1.3;
+
+    color:
+        #adc2d0 !important;
+}
+
+
+/* input dan select dibuat sedikit lebih lega */
+.report-field input,
+.report-field select,
+.report-search-shell {
+    min-height:
+        46px !important;
+
+    border-radius:
+        11px !important;
+}
+
+
+/* isi input tanggal/select tidak terlalu dekat tepi */
+.report-field input,
+.report-field select {
+    padding-left:
+        14px !important;
+
+    padding-right:
+        14px !important;
+}
+
+
+/* select tetap punya ruang untuk arrow */
+.report-field select {
+    padding-right:
+        42px !important;
+
+    background-position:
+        right 14px center,
+        center !important;
+}
+
+
+/* ================================================================
+   SEARCH LAPORAN
+   ================================================================ */
+
+.report-search-shell {
+    padding:
+        0 14px !important;
+
+    gap:
+        11px !important;
+}
+
+
+.report-search-shell > .ui-icon {
+    width:
+        18px !important;
+
+    height:
+        18px !important;
+
+    flex:
+        0 0 18px;
+}
+
+
+.report-search-shell input {
+    padding:
+        0 !important;
+
+    min-width:
+        0;
+
+    height:
+        100% !important;
+}
+
+
+/* ================================================================
+   ACTION FILTER
+   ================================================================ */
+
+.report-filter-actions {
+    padding-top:
+        6px !important;
+
+    gap:
+        9px !important;
+}
+
+
+.report-filter-actions .btn {
+    min-height:
+        42px;
+}
+
+
+/* ================================================================
+   HASIL LAPORAN
+   ================================================================ */
+
+.report-result-panel {
+    padding:
+        22px 24px 24px !important;
+
+    overflow:
+        hidden;
+}
+
+
+/* header HASIL LAPORAN */
+.report-result-head {
+    margin-bottom:
+        18px !important;
+
+    gap:
+        22px !important;
+}
+
+
+/* label HASIL LAPORAN */
+.report-result-head .eyebrow {
+    display:
+        inline-block;
+
+    margin-bottom:
+        4px;
+}
+
+
+/* Surat keluar / Surat masuk */
+.report-result-head h2 {
+    margin:
+        5px 0 6px !important;
+
+    line-height:
+        1.25;
+}
+
+
+/* "3 baris ditampilkan" */
+.report-result-head p {
+    line-height:
+        1.55 !important;
+}
+
+
+/* tombol kanan atas hasil */
+.report-result-actions {
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        8px;
+}
+
+
+/* ================================================================
+   TABLE LAPORAN
+   ================================================================ */
+
+.report-table-wrap {
+    width:
+        100%;
+
+    max-width:
+        100%;
+
+    border-radius:
+        12px !important;
+}
+
+
+/* header dan isi kolom jangan terlalu padat */
+.report-table th,
+.report-table td {
+    padding:
+        14px 16px !important;
+}
+
+
+/* header kolom */
+.report-table th {
+    line-height:
+        1.35;
+
+    white-space:
+        nowrap;
+}
+
+
+/* isi tabel */
+.report-table td {
+    line-height:
+        1.5;
+}
+
+
+/* nomor urut */
+.report-table th:first-child,
+.report-table td:first-child {
+    width:
+        52px !important;
+
+    padding-left:
+        16px !important;
+}
+
+
+/* kolom paling kanan */
+.report-table th:last-child,
+.report-table td:last-child {
+    padding-right:
+        18px !important;
+}
+
+
+/* nomor surat */
+.report-table .number-link {
+    display:
+        inline-block;
+
+    line-height:
+        1.45;
+}
+
+
+/* teks kecil di bawah isi tabel */
+.report-table td small {
+    margin-top:
+        6px !important;
+
+    line-height:
+        1.45;
+}
+
+
+/* judul isi cell */
+.report-table .cell-title {
+    line-height:
+        1.45;
+}
+
+
+/* badge tidak terlalu menempel */
+.report-table .badge,
+.report-table .sensitivity-badge,
+.report-table .team-chip {
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+}
+
+
+/* ================================================================
+   SUMMARY CARD
+   Sedikit lebih lega supaya konsisten dengan panel laporan
+   ================================================================ */
+
+.report-summary-grid {
+    gap:
+        14px !important;
+
+    margin-bottom:
+        18px !important;
+}
+
+
+.report-summary-card {
+    padding:
+        18px !important;
+}
+
+
+/* ================================================================
+   TABLET
+   ================================================================ */
+
+@media (max-width: 1180px) {
+
+    .report-filter-panel,
+    .report-result-panel {
+        padding:
+            20px !important;
+    }
+
+
+    .report-filter-form {
+        gap:
+            13px !important;
+    }
+
+}
+
+
+/* ================================================================
+   MOBILE
+   ================================================================ */
+
+@media (max-width: 760px) {
+
+    .report-filter-panel,
+    .report-result-panel {
+        padding:
+            17px 15px !important;
+
+        border-radius:
+            14px !important;
+    }
+
+
+    .report-panel-title {
+        margin-bottom:
+            18px !important;
+    }
+
+
+    .report-panel-title h2,
+    .report-result-head h2 {
+        margin-top:
+            5px !important;
+    }
+
+
+    .report-period-chip {
+        width:
+            fit-content;
+
+        max-width:
+            100%;
+
+        margin-top:
+            13px !important;
+
+        min-height:
+            36px !important;
+    }
+
+
+    .report-filter-form {
+        row-gap:
+            13px !important;
+    }
+
+
+    .report-field {
+        gap:
+            7px !important;
+    }
+
+
+    .report-field input,
+    .report-field select,
+    .report-search-shell {
+        min-height:
+            46px !important;
+    }
+
+
+    .report-filter-actions {
+        padding-top:
+            4px !important;
+    }
+
+
+    /* header hasil */
+    .report-result-head {
+        margin-bottom:
+            16px !important;
+    }
+
+
+    .report-result-actions {
+        margin-top:
+            13px !important;
+
+        gap:
+            8px;
+    }
+
+
+    /*
+     * Pada mobile tabel berubah menjadi card.
+     * Jangan gunakan padding desktop pada td.
+     */
+    .report-table tr {
+        padding:
+            12px 14px !important;
+    }
+
+
+    .report-table td,
+    .report-table td:first-child,
+    .report-table td:last-child {
+        padding:
+            9px 0 !important;
+    }
+
+
+    .report-table td {
+        line-height:
+            1.45;
+    }
+
+
+    .report-table td small {
+        margin-top:
+            4px !important;
+    }
+
+}
+
+
+/* ================================================================
+   EXTRA SMALL MOBILE
+   ================================================================ */
+
+@media (max-width: 460px) {
+
+    .report-filter-panel,
+    .report-result-panel {
+        padding:
+            15px 13px !important;
+    }
+
+
+    .report-filter-actions,
+    .report-heading-actions {
+        gap:
+            8px !important;
+    }
+
+
+    .report-table tr {
+        padding:
+            11px 12px !important;
+    }
+
+}

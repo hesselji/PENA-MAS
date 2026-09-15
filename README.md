@@ -42,3 +42,15 @@ PENA MAS membantu penomoran surat keluar, agenda surat keluar dan masuk, klasifi
 ## Catatan Penyerahan
 
 Paket ini tidak menyertakan akun contoh atau kredensial contoh. Gunakan akun resmi yang dibuat oleh pengelola aplikasi dan sesuaikan data awal sebelum digunakan untuk pekerjaan kantor.
+
+## Laporan & Ekspor
+
+PENA MAS menyediakan halaman **Laporan & Ekspor** untuk menyusun laporan surat berdasarkan periode dan pilihan penyaringan.
+
+- Administrator dapat membuat laporan Surat Keluar dan Surat Masuk.
+- Pengguna Surat Keluar hanya memperoleh laporan surat Biasa.
+- Petugas Surat Masuk hanya memperoleh laporan Surat Masuk.
+- Laporan dapat diunduh sebagai **CSV** yang dapat dibuka di Microsoft Excel.
+- Tombol **Cetak / Simpan PDF** membuka tampilan cetak yang dapat disimpan sebagai PDF melalui fasilitas cetak browser.
+- Detail perihal dan tujuan untuk surat Rahasia/Sangat Rahasia tetap disembunyikan pada laporan dan ekspor.
+- Fitur ini tidak memerlukan perubahan struktur database.
