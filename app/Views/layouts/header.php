@@ -64,6 +64,7 @@ $searchPlaceholder = $searchIncoming ? 'Cari surat masuk, asal, perihal...' : 'C
                 <a class="nav-item<?= nav_active('/admin/users') ?>" href="/admin/users"><span class="nav-icon"><?= ui_icon('users') ?></span><span>Pengguna</span></a>
                 <a class="nav-item<?= nav_active('/admin/classifications') ?>" href="/admin/classifications"><span class="nav-icon"><?= ui_icon('archive') ?></span><span>Katalog KKA</span></a>
                 <a class="nav-item<?= nav_active('/admin/numbering-rules') ?>" href="/admin/numbering-rules"><span class="nav-icon"><?= ui_icon('settings') ?></span><span>Aturan Nomor</span></a>
+                <a class="nav-item<?= nav_active('/admin/activity') ?>" href="/admin/activity"><span class="nav-icon"><?= ui_icon('shield') ?></span><span>Riwayat Aktivitas</span></a>
             <?php endif; ?>
         </nav>
 

@@ -17,6 +17,7 @@ require dirname(__DIR__) . '/app/Core/helpers.php';
 use App\Core\Auth;
 use App\Core\Env;
 use App\Core\Router;
+use App\Controllers\AdminActivityController;
 use App\Controllers\AdminMasterController;
 use App\Controllers\AdminUserController;
 use App\Controllers\AuthController;
@@ -80,5 +81,6 @@ $router->get('/admin/numbering-rules', [AdminMasterController::class, 'numbering
 $router->post('/admin/numbering-rules/{id}', [AdminMasterController::class, 'updateRule']);
 $router->post('/admin/letter-types/{id}', [AdminMasterController::class, 'updateLetterType']);
 $router->get('/admin/classifications', [AdminMasterController::class, 'classifications']);
+$router->get('/admin/activity', [AdminActivityController::class, 'index']);
 
 $router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
