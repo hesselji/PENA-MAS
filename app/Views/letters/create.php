@@ -1,5 +1,7 @@
 <?php
+
 use App\Core\Auth;
+
 $errs = $errors ?? [];
 $oldData = $_SESSION['old'] ?? [];
 $isAdmin = Auth::isAdmin();
@@ -14,7 +16,9 @@ $recipientRoleLabels = ['ADMIN' => 'Administrator', 'USER' => 'Pengguna Surat Ke
         <h1>Buat nomor surat keluar</h1>
         <p>Lengkapi informasi surat. Nomor urut untuk kode unit 62710 dan 62711 dikelola terpisah sesuai jenis surat.</p>
     </div>
-    <div class="heading-hint"><span><?= ui_icon('shield') ?></span><div><strong>Powered By Sequence Aman</strong><small>Sistem memastikan setiap nomor tersimpan dengan urutan yang benar dan tidak ganda.</small></div></div>
+    <div class="heading-hint"><span><?= ui_icon('shield') ?></span>
+        <div><strong>Powered By Sequence Aman</strong><small>Sistem memastikan setiap nomor tersimpan dengan urutan yang benar dan tidak ganda.</small></div>
+    </div>
 </section>
 
 <div class="create-layout">
@@ -23,14 +27,19 @@ $recipientRoleLabels = ['ADMIN' => 'Administrator', 'USER' => 'Pengguna Surat Ke
             <?= csrf_field() ?>
 
             <div class="form-section">
-                <div class="form-section-head"><span class="section-step">01</span><div><h2>Informasi Surat</h2><p>Pilih jenis surat, tim kerja, sistem, dan tanggal surat.</p></div></div>
+                <div class="form-section-head"><span class="section-step">01</span>
+                    <div>
+                        <h2>Informasi Surat</h2>
+                        <p>Pilih jenis surat, tim kerja, sistem, dan tanggal surat.</p>
+                    </div>
+                </div>
                 <div class="form-grid form-grid-2">
                     <label class="field">
                         <span>Jenis Surat <i>*</i></span>
                         <select name="letter_type_id" id="letterType" required>
                             <option value="">Pilih jenis surat</option>
                             <?php foreach ($types as $t): ?>
-                                <?php $dateMode = $t['rule_code']==='MAIN_62710' ? 'NO_PAST' : 'ANY'; ?>
+                                <?php $dateMode = $t['rule_code'] === 'MAIN_62710' ? 'NO_PAST' : 'ANY'; ?>
                                 <option value="<?= (int)$t['id'] ?>"
                                     data-unit="<?= e($t['unit_code']) ?>"
                                     data-pattern="<?= e($t['pattern']) ?>"
@@ -73,7 +82,12 @@ $recipientRoleLabels = ['ADMIN' => 'Administrator', 'USER' => 'Pengguna Surat Ke
             </div>
 
             <div class="form-section">
-                <div class="form-section-head"><span class="section-step orange">02</span><div><h2>Aturan & Klasifikasi</h2><p>Anggaran akan otomatis mengarahkan arsip ke Fasilitatif dan kelompok KU.</p></div></div>
+                <div class="form-section-head"><span class="section-step orange">02</span>
+                    <div>
+                        <h2>Aturan & Klasifikasi</h2>
+                        <p>Anggaran akan otomatis mengarahkan arsip ke Fasilitatif dan kelompok KU.</p>
+                    </div>
+                </div>
                 <div class="form-grid form-grid-2">
                     <?php if ($isAdmin): ?>
                         <label class="field">
@@ -94,7 +108,9 @@ $recipientRoleLabels = ['ADMIN' => 'Administrator', 'USER' => 'Pengguna Surat Ke
                             <input value="Biasa" readonly aria-readonly="true">
                             <small class="field-help">Akun pengguna hanya dapat membuat surat dengan sifat Biasa.</small>
                         </label>
-                        <select id="sensitivity" hidden><option value="BIASA" data-prefix="B" selected>Biasa</option></select>
+                        <select id="sensitivity" hidden>
+                            <option value="BIASA" data-prefix="B" selected>Biasa</option>
+                        </select>
                     <?php endif; ?>
 
                     <label class="field">
@@ -133,7 +149,9 @@ $recipientRoleLabels = ['ADMIN' => 'Administrator', 'USER' => 'Pengguna Surat Ke
 
                     <label class="field" id="parentField">
                         <span>Kelompok Klasifikasi (KKA) <i>*</i></span>
-                        <select name="classification_parent" id="classificationParent" data-old="<?= e($oldData['classification_parent'] ?? '') ?>" required disabled><option value="">Pilih jenis arsip dahulu</option></select>
+                        <select name="classification_parent" id="classificationParent" data-old="<?= e($oldData['classification_parent'] ?? '') ?>" required disabled>
+                            <option value="">Pilih jenis arsip dahulu</option>
+                        </select>
                         <input type="hidden" name="classification_parent" id="classificationParentMirror" value="KU" disabled>
                         <small class="field-help" id="parentLockHelp">Pilih kelompok KKA.</small>
                         <?php if (!empty($errs['classification_parent'])): ?><small class="field-error"><?= e($errs['classification_parent']) ?></small><?php endif; ?>
@@ -141,14 +159,21 @@ $recipientRoleLabels = ['ADMIN' => 'Administrator', 'USER' => 'Pengguna Surat Ke
 
                     <label class="field">
                         <span>Kode Klasifikasi <i>*</i></span>
-                        <select name="classification_child" id="classificationChild" data-old="<?= e($oldData['classification_child'] ?? '') ?>" required disabled><option value="">Pilih kelompok KKA dahulu</option></select>
+                        <select name="classification_child" id="classificationChild" data-old="<?= e($oldData['classification_child'] ?? '') ?>" required disabled>
+                            <option value="">Pilih kelompok KKA dahulu</option>
+                        </select>
                         <?php if (!empty($errs['classification_child'])): ?><small class="field-error"><?= e($errs['classification_child']) ?></small><?php endif; ?>
                     </label>
                 </div>
             </div>
 
             <div class="form-section">
-                <div class="form-section-head"><span class="section-step green">03</span><div><h2>Tujuan & Perihal</h2><p>Satu data surat dapat digunakan untuk satu tujuan atau banyak tujuan sekaligus. Setiap tujuan akan memperoleh nomor surat yang berbeda.</p></div></div>
+                <div class="form-section-head"><span class="section-step green">03</span>
+                    <div>
+                        <h2>Tujuan & Perihal</h2>
+                        <p>Satu data surat dapat digunakan untuk satu tujuan atau banyak tujuan sekaligus. Setiap tujuan akan memperoleh nomor surat yang berbeda.</p>
+                    </div>
+                </div>
 
                 <div class="form-grid form-grid-2">
                     <label class="field span-all"><span>Perihal <i>*</i></span><input name="subject" value="<?= old('subject') ?>" placeholder="Perihal / keperluan surat yang sama untuk seluruh tujuan" required><?php if (!empty($errs['subject'])): ?><small class="field-error"><?= e($errs['subject']) ?></small><?php endif; ?></label>
@@ -164,24 +189,30 @@ $recipientRoleLabels = ['ADMIN' => 'Administrator', 'USER' => 'Pengguna Surat Ke
 
                     <div class="recipient-methods">
                         <section class="recipient-method-card">
-                            <div class="recipient-method-title"><span>1</span><div><strong>Ketik satu tujuan</strong><small>Untuk surat tunggal atau menambahkan satu nama manual.</small></div></div>
+                            <div class="recipient-method-title"><span>1</span>
+                                <div><strong>Ketik satu tujuan</strong><small>Untuk surat tunggal atau menambahkan satu nama manual.</small></div>
+                            </div>
                             <label class="field">
                                 <span>Tujuan manual</span>
-                                <input name="recipient" id="recipientSingle" value="<?= old('recipient') ?>" placeholder="Contoh: Hessel Josef Imanuel / Kepala Dinas ..." autocomplete="off">
+                                <input name="recipient" id="recipientSingle" value="<?= old('recipient') ?>" placeholder="Masukkan Nama Tujuan di Sini" autocomplete="off">
                             </label>
                         </section>
 
                         <section class="recipient-method-card">
-                            <div class="recipient-method-title"><span>2</span><div><strong>Paste banyak nama</strong><small>Satu nama per baris. Cocok untuk 20, 45, hingga 100 orang.</small></div></div>
+                            <div class="recipient-method-title"><span>2</span>
+                                <div><strong>Paste banyak nama</strong><small>Satu nama per baris. Cocok untuk 20, 45, hingga 100 orang.</small></div>
+                            </div>
                             <label class="field">
                                 <span>Daftar nama</span>
-                                <textarea name="recipients_bulk" id="recipientsBulk" rows="7" placeholder="Andi Saputra&#10;Budi Santoso&#10;Citra Wijaya"><?= e($oldData['recipients_bulk'] ?? '') ?></textarea>
+                                <textarea name="recipients_bulk" id="recipientsBulk" rows="7" placeholder="Paste Banyak Nama di Sini"><?= e($oldData['recipients_bulk'] ?? '') ?></textarea>
                             </label>
-                            <small class="field-help">List bernomor seperti “1. Andi” juga dapat ditempel; nomor urut akan dibersihkan saat disimpan.</small>
+
                         </section>
 
                         <section class="recipient-method-card recipient-account-card span-all">
-                            <div class="recipient-method-title"><span>3</span><div><strong>Pilih dari akun aktif PENA MAS</strong><small>Shortcut untuk nama yang sudah memiliki akun. Ini bukan master pegawai resmi, jadi tujuan lain tetap bisa diketik manual.</small></div></div>
+                            <div class="recipient-method-title"><span>3</span>
+                                <div><strong>Pilih dari akun aktif PENA MAS</strong><small>Shortcut untuk nama yang sudah memiliki akun. Ini bukan master pegawai resmi, jadi tujuan lain tetap bisa diketik manual.</small></div>
+                            </div>
 
                             <?php if ($recipientCandidates): ?>
                                 <div class="recipient-picker-toolbar">
@@ -192,8 +223,8 @@ $recipientRoleLabels = ['ADMIN' => 'Administrator', 'USER' => 'Pengguna Surat Ke
                                 <div class="recipient-user-list" id="recipientUserList">
                                     <?php foreach ($recipientCandidates as $candidate): ?>
                                         <?php
-                                            $searchText = strtolower(trim(($candidate['name'] ?? '').' '.($candidate['email'] ?? '').' '.($candidate['work_team_name'] ?? '')));
-                                            $checked = in_array((int)$candidate['id'],$selectedRecipientIds,true);
+                                        $searchText = strtolower(trim(($candidate['name'] ?? '') . ' ' . ($candidate['email'] ?? '') . ' ' . ($candidate['work_team_name'] ?? '')));
+                                        $checked = in_array((int)$candidate['id'], $selectedRecipientIds, true);
                                         ?>
                                         <label class="recipient-user-item" data-recipient-user data-search="<?= e($searchText) ?>">
                                             <input type="checkbox" name="selected_user_ids[]" value="<?= (int)$candidate['id'] ?>" data-recipient-checkbox data-recipient-name="<?= e($candidate['name']) ?>" <?= $checked ? 'checked' : '' ?>>
@@ -235,7 +266,9 @@ $recipientRoleLabels = ['ADMIN' => 'Administrator', 'USER' => 'Pengguna Surat Ke
                 <div><i class="green"></i><span>Kode unit</span></div>
                 <div><i class="orange"></i><span>Klasifikasi KKA</span></div>
             </div>
-            <div class="preview-info"><span><?= ui_icon('info') ?></span><p>Kode unit 62710 dan 62711 memiliki urutan nomor masing-masing sehingga nomor tetap tertib dan tidak ganda.</p></div>
+            <div class="preview-info"><span><?= ui_icon('info') ?></span>
+                <p>Kode unit 62710 dan 62711 memiliki urutan nomor masing-masing sehingga nomor tetap tertib dan tidak ganda.</p>
+            </div>
         </section>
     </aside>
 </div>
