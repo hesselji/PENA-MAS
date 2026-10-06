@@ -1,0 +1,34 @@
+<section class="page-heading detail-heading">
+    <div><a class="breadcrumb" href="/incoming"><?= ui_icon('arrow-left') ?> Kembali ke Agenda Surat Masuk</a><span class="eyebrow">DETAIL SURAT MASUK</span><h1>Informasi & tindak lanjut</h1><p>Informasi surat, penanggung jawab, dan riwayat penanganan.</p></div>
+    <span class="workflow-badge workflow-<?= strtolower($letter['workflow_status']) ?> workflow-badge-lg"><?= e(incoming_status_label($letter['workflow_status'])) ?></span>
+</section>
+
+<section class="number-hero-card incoming-hero"><div class="number-hero-icon"><?= ui_icon('mail') ?></div><div class="number-hero-main"><span>Nomor Surat dari Pengirim</span><strong id="incomingNumberValue"><?= e($letter['letter_number']) ?></strong><small><?= e($letter['origin']) ?></small></div><button class="btn btn-secondary" type="button" data-copy-target="#incomingNumberValue"><?= ui_icon('copy') ?><span>Salin Nomor</span></button></section>
+
+<div class="detail-layout incoming-workflow-layout">
+    <section class="panel detail-panel">
+        <div class="panel-heading"><div><span class="eyebrow">DATA SURAT</span><h2>Informasi utama</h2></div><span class="panel-icon-soft"><?= ui_icon('mail') ?></span></div>
+        <div class="detail-data-grid"><div><span>Asal Surat</span><strong><?= e($letter['origin']) ?></strong></div><div><span>Kepada</span><strong><?= e($letter['recipient']) ?></strong></div><div><span>Tanggal Surat</span><strong><?= e(format_date_id($letter['letter_date'])) ?></strong></div><div><span>Tanggal Diterima</span><strong><?= e(format_date_id($letter['received_date'])) ?></strong></div><div class="detail-span-2"><span>Perihal</span><strong><?= e($letter['subject']) ?></strong></div><?php if($letter['notes']):?><div class="detail-span-2"><span>Catatan Awal</span><p><?= nl2br(e($letter['notes'])) ?></p></div><?php endif;?></div>
+
+        <?php if(!empty($letter['attachment_path'])): ?><div class="incoming-attachment-card"><span class="panel-icon-soft"><?= ui_icon('file') ?></span><div><strong>Lampiran surat</strong><small><?= e($letter['attachment_name']) ?> · <?= number_format(((int)$letter['attachment_size'])/1024,0,',','.') ?> KB</small></div><a class="btn btn-secondary" target="_blank" href="/incoming/<?= (int)$letter['id'] ?>/attachment">Buka Lampiran</a></div><?php endif; ?>
+
+        <div class="divider"></div>
+        <div class="panel-heading"><div><span class="eyebrow">TINDAK LANJUT</span><h2>Perbarui proses surat</h2><p>Tentukan status, tim, penanggung jawab, dan catatan kerja.</p></div><span class="panel-icon-soft"><?= ui_icon('workflow') ?></span></div>
+        <form method="post" action="/incoming/<?= (int)$letter['id'] ?>/workflow" class="modern-form incoming-workflow-form" data-loading-form>
+            <?= csrf_field() ?>
+            <div class="form-grid form-grid-2">
+                <label class="field"><span>Status</span><select name="workflow_status" required><option value="BARU" <?= $letter['workflow_status']==='BARU'?'selected':'' ?>>Baru</option><option value="DIPROSES" <?= $letter['workflow_status']==='DIPROSES'?'selected':'' ?>>Diproses</option><option value="SELESAI" <?= $letter['workflow_status']==='SELESAI'?'selected':'' ?>>Selesai</option></select></label>
+                <label class="field"><span>Tim penerima</span><select name="assigned_team_id"><option value="">Belum ditentukan</option><?php foreach($teams as $t):?><option value="<?= (int)$t['id'] ?>" <?= (int)$letter['assigned_team_id']===(int)$t['id']?'selected':'' ?>><?= e($t['name']) ?></option><?php endforeach;?></select></label>
+                <label class="field span-all"><span>Penanggung jawab</span><select name="assigned_user_id"><option value="">Belum ditentukan</option><?php foreach($assignees as $u):?><option value="<?= (int)$u['id'] ?>" <?= (int)$letter['assigned_user_id']===(int)$u['id']?'selected':'' ?>><?= e(display_user_name($u['name'])) ?><?= $u['work_team_name']?' · '.e($u['work_team_name']):'' ?></option><?php endforeach;?></select></label>
+                <label class="field span-all"><span>Catatan tindak lanjut</span><textarea name="follow_up_note" rows="4" placeholder="Contoh: diteruskan ke tim terkait, menunggu jawaban, atau tindak lanjut telah selesai..."><?= e($letter['follow_up_note']) ?></textarea></label>
+            </div>
+            <div class="form-actions-inline"><button class="btn btn-primary" type="submit"><?= ui_icon('check') ?><span>Simpan Tindak Lanjut</span></button></div>
+        </form>
+    </section>
+
+    <aside class="detail-aside">
+        <section class="panel metadata-panel"><span class="eyebrow">PENCATATAN</span><div><span>Dicatat Oleh</span><strong><?= e(display_user_name($letter['creator_name'])) ?></strong></div><div><span>Tanggal Pencatatan</span><strong><?= e(format_date_id($letter['recorded_at'],true)) ?></strong></div><div><span>Tim Penerima</span><strong><?= e($letter['assigned_team_name'] ?: '-') ?></strong></div><div><span>Penanggung Jawab</span><strong><?= e($letter['assigned_user_name'] ? display_user_name($letter['assigned_user_name']) : '-') ?></strong></div></section>
+
+        <section class="panel incoming-timeline-panel"><div class="panel-heading"><div><span class="eyebrow">RIWAYAT</span><h2>Timeline</h2></div></div><div class="incoming-timeline"><?php foreach($events as $event):?><article class="timeline-entry"><span class="timeline-dot"></span><div><strong><?= $event['event_type']==='CREATED'?'Surat dicatat':'Tindak lanjut diperbarui' ?></strong><small><?= e(format_date_id($event['created_at'],true)) ?> · <?= e(display_user_name($event['creator_name'])) ?></small><?php if($event['status_to']):?><p>Status: <?= e(incoming_status_label($event['status_to'])) ?><?= $event['assigned_user_name']?' · '.e(display_user_name($event['assigned_user_name'])):'' ?></p><?php endif;?><?php if($event['note']):?><p><?= e($event['note']) ?></p><?php endif;?></div></article><?php endforeach;?></div></section>
+    </aside>
+</div>

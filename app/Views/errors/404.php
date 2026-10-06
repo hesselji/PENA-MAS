@@ -1,0 +1,1 @@
+<section class="error-page-modern"><div class="error-orbit"><span>404</span></div><span class="eyebrow">TIDAK DITEMUKAN</span><h1>Halaman tidak tersedia</h1><p>Halaman atau informasi yang Anda cari tidak tersedia atau tidak dapat diakses.</p><a class="btn btn-primary" href="/dashboard"><?= ui_icon('arrow-left') ?> Kembali ke Dashboard</a></section>

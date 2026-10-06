@@ -1,0 +1,12 @@
+<?php
+namespace App\Controllers;
+use App\Core\Auth;use App\Core\Csrf;use App\Core\View;use App\Models\AuditLog;use App\Models\Employee;use App\Models\MasterData;use App\Models\Signer;
+final class AdminSignerController
+{
+    public function index(): void{Auth::requireAdmin();View::render('admin/signers/index',['signers'=>Signer::all(),'teams'=>MasterData::workTeams(),'employees'=>Employee::all(true)]);}
+    public function store(): void{Auth::requireAdmin();Csrf::validate($_POST['_token']??null);$d=$this->data();$e=$this->validate($d);if($e){$_SESSION['errors']=$e;$_SESSION['old']=$_POST;header('Location:/admin/signers');exit;}$id=Signer::create($d,(int)Auth::id());AuditLog::write(Auth::id(),'CREATE_SIGNER','signer',$id,['name'=>$d['name']]);unset($_SESSION['old']);$_SESSION['flash_success']='Penanda tangan berhasil ditambahkan.';header('Location:/admin/signers');exit;}
+    public function update(string $id): void{Auth::requireAdmin();Csrf::validate($_POST['_token']??null);$s=Signer::find((int)$id);if(!$s){http_response_code(404);View::render('errors/404');return;}$d=$this->data();$e=$this->validate($d);if($e){$_SESSION['flash_error']='Periksa kembali data penanda tangan.';header('Location:/admin/signers');exit;}Signer::update((int)$id,$d,(int)Auth::id());AuditLog::write(Auth::id(),'UPDATE_SIGNER','signer',(int)$id,['name'=>$d['name']]);$_SESSION['flash_success']='Data penanda tangan diperbarui.';header('Location:/admin/signers');exit;}
+    public function toggle(string $id): void{Auth::requireAdmin();Csrf::validate($_POST['_token']??null);$s=Signer::find((int)$id);if(!$s){http_response_code(404);View::render('errors/404');return;}$active=!((bool)$s['is_active']);Signer::setActive((int)$id,$active,(int)Auth::id());AuditLog::write(Auth::id(),$active?'ACTIVATE_SIGNER':'DEACTIVATE_SIGNER','signer',(int)$id);$_SESSION['flash_success']=$active?'Penanda tangan diaktifkan.':'Penanda tangan dinonaktifkan.';header('Location:/admin/signers');exit;}
+    private function data(): array{return ['name'=>trim($_POST['name']??''),'position'=>trim($_POST['position']??''),'nip'=>trim($_POST['nip']??''),'work_team_id'=>(int)($_POST['work_team_id']??0),'employee_id'=>(int)($_POST['employee_id']??0),'passkey'=>trim($_POST['passkey']??'')];}
+    private function validate(array $d): array{$e=[];if($d['name']==='')$e['name']='Nama wajib diisi.';if($d['position']==='')$e['position']='Jabatan wajib diisi.';if($d['passkey']!==''&&strlen($d['passkey'])<6)$e['passkey']='Passkey prototype minimal 6 karakter.';return $e;}
+}
