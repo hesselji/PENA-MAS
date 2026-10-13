@@ -182,79 +182,53 @@ $recipientRoleLabels = ['ADMIN' => 'Administrator', 'USER' => 'Pengguna Surat Ke
 
                 <div class="recipient-builder" id="recipientBuilder">
                     <div class="recipient-builder-head">
-                        <div><strong>Daftar Tujuan Surat</strong><small>Kamu boleh memakai satu atau beberapa cara di bawah. Nama yang sama otomatis tidak digandakan.</small></div>
+                        <div>
+                            <span class="eyebrow">TUJUAN SURAT</span>
+                            <h3>Pilih cara menentukan tujuan</h3>
+                            <p>Gunakan satu tujuan untuk satu surat atau banyak tujuan untuk membuat beberapa nomor sekaligus.</p>
+                        </div>
                         <div class="recipient-count"><span id="recipientCount">0</span><small>tujuan</small></div>
                     </div>
-
                     <?php if (!empty($errs['recipients'])): ?><div class="recipient-error"><?= e($errs['recipients']) ?></div><?php endif; ?>
 
-                    <div class="recipient-methods">
-                        <section class="recipient-method-card">
-                            <div class="recipient-method-title"><span>1</span>
-                                <div><strong>Ketik satu tujuan</strong><small>Untuk surat tunggal atau menambahkan satu nama manual.</small></div>
-                            </div>
-                            <label class="field">
-                                <span>Tujuan manual</span>
-                                <input name="recipient" id="recipientSingle" value="<?= old('recipient') ?>" placeholder="Masukkan Nama Tujuan di Sini" autocomplete="off">
-                            </label>
-                        </section>
-
-                        <section class="recipient-method-card">
-                            <div class="recipient-method-title"><span>2</span>
-                                <div><strong>Paste banyak nama</strong><small>Satu nama per baris. Cocok untuk 20, 45, hingga 100 orang.</small></div>
-                            </div>
-                            <label class="field">
-                                <span>Daftar nama</span>
-                                <textarea name="recipients_bulk" id="recipientsBulk" rows="7" placeholder="Paste Banyak Nama di Sini"><?= e($oldData['recipients_bulk'] ?? '') ?></textarea>
-                            </label>
-
-                        </section>
-
-                        <section class="recipient-method-card recipient-account-card span-all">
-                            <div class="recipient-method-title"><span>3</span>
-                                <div><strong>Pilih dari akun aktif PENA MAS</strong><small>Shortcut untuk nama yang sudah memiliki akun. Ini bukan master pegawai resmi, jadi tujuan lain tetap bisa diketik manual.</small></div>
-                            </div>
-
-                            <?php if ($recipientCandidates): ?>
-                                <div class="recipient-picker-toolbar">
-                                    <div class="toolbar-search recipient-user-search"><?= ui_icon('search') ?><input type="search" id="recipientUserSearch" placeholder="Cari nama, email, atau tim kerja..." autocomplete="off"></div>
-                                    <button class="btn btn-secondary btn-sm" type="button" id="selectAllRecipientUsers">Pilih Semua Hasil</button>
-                                    <button class="btn btn-ghost btn-sm" type="button" id="clearRecipientUsers">Kosongkan</button>
-                                </div>
-                                <div class="recipient-user-list" id="recipientUserList">
-                                    <?php foreach ($recipientCandidates as $candidate): ?>
-                                        <?php
-                                        $searchText = strtolower(trim(($candidate['name'] ?? '') . ' ' . ($candidate['email'] ?? '') . ' ' . ($candidate['work_team_name'] ?? '')));
-                                        $checked = in_array((int)$candidate['id'], $selectedRecipientIds, true);
-                                        ?>
-                                        <label class="recipient-user-item" data-recipient-user data-search="<?= e($searchText) ?>">
-                                            <input type="checkbox" name="selected_user_ids[]" value="<?= (int)$candidate['id'] ?>" data-recipient-checkbox data-recipient-name="<?= e($candidate['name']) ?>" <?= $checked ? 'checked' : '' ?>>
-                                            <span class="avatar avatar-sm"><?= e(user_initials($candidate['name'])) ?></span>
-                                            <span class="recipient-user-copy"><strong><?= e($candidate['name']) ?></strong><small><?= e($candidate['work_team_name'] ?? 'Tanpa tim') ?> - <?= e($candidate['email']) ?></small></span>
-                                            <span class="role-badge role-<?= strtolower(e($candidate['role'])) ?>"><?= e($recipientRoleLabels[$candidate['role']] ?? $candidate['role']) ?></span>
-                                        </label>
-                                    <?php endforeach; ?>
-                                </div>
-                                <div class="recipient-picker-footer"><span id="recipientPickerVisibleCount"><?= count($recipientCandidates) ?></span> akun ditampilkan - tombol “Pilih Semua Hasil” hanya memilih hasil pencarian yang sedang terlihat.</div>
-                            <?php else: ?>
-                                <div class="empty-inline">Belum ada akun aktif yang dapat dipilih. Gunakan input manual atau paste banyak nama.</div>
-                            <?php endif; ?>
-                        </section>
-
-                        <section class="recipient-method-card recipient-account-card span-all">
-                            <div class="recipient-method-title"><span>4</span><div><strong>Pilih dari Master Pegawai</strong><small>Daftar pegawai resmi/prototype terpisah dari akun login.</small></div></div>
-                            <?php if ($employeeCandidates): ?>
-                                <div class="recipient-picker-toolbar"><div class="toolbar-search recipient-user-search"><?= ui_icon('search') ?><input type="search" id="recipientEmployeeSearch" placeholder="Cari nama, NIP, jabatan, atau tim..."></div><button class="btn btn-secondary btn-sm" type="button" id="selectAllRecipientEmployees">Pilih Semua Hasil</button><button class="btn btn-ghost btn-sm" type="button" id="clearRecipientEmployees">Kosongkan</button></div>
-                                <div class="recipient-user-list" id="recipientEmployeeList">
-                                <?php foreach($employeeCandidates as $candidate): $searchText=strtolower(trim(($candidate['name']??'').' '.($candidate['nip']??'').' '.($candidate['position']??'').' '.($candidate['work_team_name']??''))); ?>
-                                    <label class="recipient-user-item" data-recipient-employee data-search="<?= e($searchText) ?>"><input type="checkbox" name="selected_employee_ids[]" value="<?= (int)$candidate['id'] ?>" data-recipient-checkbox data-recipient-name="<?= e($candidate['name']) ?>"><span class="avatar avatar-sm"><?= e(user_initials($candidate['name'])) ?></span><span class="recipient-user-copy"><strong><?= e($candidate['name']) ?></strong><small><?= e($candidate['position']?:'Jabatan belum diisi') ?><?= $candidate['work_team_name']?' · '.e($candidate['work_team_name']):'' ?></small></span><span class="role-badge">Pegawai</span></label>
-                                <?php endforeach; ?>
-                                </div>
-                            <?php else: ?><div class="empty-inline">Master Pegawai masih kosong. Administrator dapat mengisinya dari menu Administrasi.</div><?php endif; ?>
-                        </section>
+                    <input type="hidden" name="recipient_mode" id="recipientMode" value="<?= e($oldData['recipient_mode'] ?? 'single') ?>">
+                    <div class="recipient-mode-switch" role="tablist" aria-label="Mode tujuan surat">
+                        <button type="button" class="recipient-mode-btn" data-recipient-mode="single" role="tab">
+                            <strong>Satu Tujuan</strong><small>Satu nama penerima</small>
+                        </button>
+                        <button type="button" class="recipient-mode-btn" data-recipient-mode="multiple" role="tab">
+                            <strong>Banyak Tujuan</strong><small>Satu nama per baris</small>
+                        </button>
                     </div>
-                </div>
 
+                    <section class="recipient-mode-panel" data-recipient-panel="single">
+                        <label class="field">
+                            <span>Nama tujuan <i>*</i></span>
+                            <input name="recipient" id="recipientSingle" value="<?= old('recipient') ?>" placeholder="Contoh: Kepala BPS Kota Palangka Raya" autocomplete="off" list="recipientSuggestions">
+                        </label>
+                        <small class="recipient-mode-help">Nama yang pernah diketik pada perangkat ini akan muncul sebagai saran dan disaring otomatis berdasarkan huruf yang sedang diketik.</small>
+                    </section>
+
+                    <section class="recipient-mode-panel" data-recipient-panel="multiple" hidden>
+                        <label class="field">
+                            <span>Daftar tujuan <i>*</i></span>
+                            <textarea name="recipients_bulk" id="recipientsBulk" rows="7" placeholder="Satu tujuan per baris
+Kepala BPS Kota Palangka Raya
+Kepala Bagian Umum
+Kepala Tim Statistik"><?= e($oldData['recipients_bulk'] ?? '') ?></textarea>
+                        </label>
+                        <small class="recipient-mode-help">Setiap baris menjadi satu nomor surat. Maksimal 200 tujuan dalam satu kali pembuatan.</small>
+                    </section>
+
+                    <datalist id="recipientSuggestions">
+                        <?php foreach ($recipientCandidates as $candidate): ?>
+                            <option value="<?= e($candidate['name']) ?>"><?= e($candidate['name']) ?></option>
+                        <?php endforeach; ?>
+                        <?php foreach ($employeeCandidates as $candidate): ?>
+                            <option value="<?= e($candidate['name']) ?>"><?= e($candidate['name']) ?></option>
+                        <?php endforeach; ?>
+                    </datalist>
+                </div>
                 <div class="form-grid form-grid-2 recipient-common-fields">
                     <label class="field span-all"><span>Catatan Tambahan</span><textarea name="notes" rows="4" placeholder="Catatan yang sama untuk seluruh surat yang dibuat sekaligus..."><?= old('notes') ?></textarea></label>
                 </div>

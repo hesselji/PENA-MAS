@@ -44,20 +44,21 @@ final class IncomingLetterController
     public function show(string $id): void
     {
         Auth::requireIncomingAccess();$letter=IncomingLetter::find((int)$id);if(!$letter){http_response_code(404);View::render('errors/404');return;}
-        View::render('incoming/show',['letter'=>$letter,'events'=>IncomingLetter::events((int)$id),'teams'=>MasterData::workTeams(),'assignees'=>User::incomingAssignees()]);
+        View::render('incoming/show',['letter'=>$letter,'events'=>IncomingLetter::events((int)$id),'dispositions'=>IncomingLetter::dispositions((int)$id),'teams'=>MasterData::workTeams(),'assignees'=>User::incomingAssignees()]);
     }
 
     public function updateWorkflow(string $id): void
     {
         Auth::requireIncomingAccess();Csrf::validate($_POST['_token']??null);$letter=IncomingLetter::find((int)$id);
         if(!$letter){http_response_code(404);View::render('errors/404');return;}
-        $status=$_POST['workflow_status']??'';$team=(int)($_POST['assigned_team_id']??0);$assignee=(int)($_POST['assigned_user_id']??0);$note=trim($_POST['follow_up_note']??'');
-        if(!in_array($status,['BARU','DIPROSES','SELESAI'],true)){$_SESSION['flash_error']='Status tindak lanjut tidak valid.';header('Location:/incoming/'.$id);exit;}
-        IncomingLetter::updateWorkflow((int)$id,['workflow_status'=>$status,'assigned_team_id'=>$team,'assigned_user_id'=>$assignee,'follow_up_note'=>$note],(int)Auth::id());
-        AuditLog::write(Auth::id(),'UPDATE_INCOMING_WORKFLOW','incoming_letter',(int)$id,['status'=>$status,'assigned_team_id'=>$team,'assigned_user_id'=>$assignee]);
-        if($assignee>0 && $assignee!==(int)Auth::id()){
-            try{Notification::createForUsers([$assignee],'INCOMING_ASSIGNED','Tindak lanjut surat masuk','Anda ditetapkan sebagai penanggung jawab surat '.$letter['letter_number'].'.','/incoming/'.$id,'incoming_letter',(int)$id);}catch(\Throwable $e){error_log('[PENA MAS][incoming notification] '.$e->getMessage());}
-        }
+        $status=$_POST['workflow_status']??'';$teams=$_POST['assigned_team_ids']??[];$teams=is_array($teams)?$teams:[];$assignedUsers=$_POST['assigned_user_by_team']??[];$assignedUsers=is_array($assignedUsers)?$assignedUsers:[];$note=trim($_POST['follow_up_note']??'');
+        if(!in_array($status,['MASUK','DISPOSISI','SELESAI'],true)){$_SESSION['flash_error']='Status tindak lanjut tidak valid.';header('Location:/incoming/'.$id);exit;}
+        if($status==='DISPOSISI' && !$teams){$_SESSION['flash_error']='Pilih minimal satu tim untuk disposisi.';header('Location:/incoming/'.$id);exit;}
+        $cleanUsers=[];foreach($teams as $teamId){$teamId=(int)$teamId;if($teamId>0)$cleanUsers[$teamId]=(int)($assignedUsers[$teamId]??0);}
+        IncomingLetter::updateWorkflow((int)$id,['workflow_status'=>$status,'assigned_teams'=>array_keys($cleanUsers),'assigned_users'=>$cleanUsers,'follow_up_note'=>$note],(int)Auth::id());
+        AuditLog::write(Auth::id(),'UPDATE_INCOMING_WORKFLOW','incoming_letter',(int)$id,['status'=>$status,'assigned_team_ids'=>array_keys($cleanUsers)]);
+        $notify=[];foreach($cleanUsers as $uid){if($uid>0 && $uid!==(int)Auth::id())$notify[]=$uid;}
+        if($notify){try{Notification::createForUsers(array_values(array_unique($notify)),'INCOMING_ASSIGNED','Disposisi surat masuk','Anda ditetapkan sebagai penerima disposisi surat '.$letter['letter_number'].'.','/incoming/'.$id,'incoming_letter',(int)$id);}catch(\Throwable $e){error_log('[PENA MAS][incoming notification] '.$e->getMessage());}}
         $_SESSION['flash_success']='Tindak lanjut surat masuk diperbarui.';header('Location:/incoming/'.$id);exit;
     }
 

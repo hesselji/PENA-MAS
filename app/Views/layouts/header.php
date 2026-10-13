@@ -43,7 +43,7 @@ if ($me) {
     <meta name="description" content="PENA MAS - Penomoran Agenda dan Manajemen Arsip Surat">
     <title><?= e($appName) ?></title>
     <link rel="icon" href="/assets/images/penamas-icon.png" type="image/png">
-    <link rel="stylesheet" href="/assets/css/style.css?v=20261002-advanced-v1">
+    <link rel="stylesheet" href="/assets/css/style.css?v=20261013-ui2">
 </head>
 <body class="<?= $me ? 'app-body' : 'auth-body' ?>">
 <?php if ($me): ?>

@@ -102,6 +102,8 @@ $router->get('/documents/{id}/download-pdf-exact', [DocumentController::class, '
 $router->post('/documents/{id}/submit', [DocumentController::class, 'submit']);
 $router->post('/documents/{id}/sign', [DocumentController::class, 'sign']);
 $router->post('/documents/{id}/reject', [DocumentController::class, 'reject']);
+$router->get('/signed-batches/{id}', [DocumentController::class, 'signedBatchShow']);
+$router->get('/signed-batches/{id}/print', [DocumentController::class, 'signedBatchPrint']);
 $router->get('/document-batches/{id}', [DocumentController::class, 'batchShow']);
 $router->get('/document-batches/{id}/print', [DocumentController::class, 'batchPrint']);
 $router->get('/document-batches/{id}/download-docx', [DocumentController::class, 'downloadBatchExactDocx']);

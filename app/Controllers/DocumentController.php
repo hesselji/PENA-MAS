@@ -112,7 +112,24 @@ final class DocumentController
             exit;
         }
         $template = DocumentTemplate::find((int)($_POST['template_id'] ?? 0), true);
+        $signerMode = ($_POST['signer_mode'] ?? 'single') === 'per_letter' ? 'per_letter' : 'single';
         $signer = Signer::find((int)($_POST['signer_id'] ?? 0), true);
+        $postedSignerIds = $_POST['signer_ids'] ?? [];
+        $postedSignerIds = is_array($postedSignerIds) ? $postedSignerIds : [];
+        $signerMap = [];
+        if ($signerMode === 'per_letter') {
+            foreach ($ids as $selectedId) {
+                $sid = (int)($postedSignerIds[$selectedId] ?? 0);
+                if ($sid <= 0 || !Signer::find($sid, true)) {
+                    $_SESSION['flash_error'] = 'Pilih penanda tangan untuk setiap surat yang dipilih.';
+                    header('Location:/documents');
+                    exit;
+                }
+                $signerMap[$selectedId] = $sid;
+            }
+            $firstSignerId = (int)reset($signerMap);
+            $signer = Signer::find($firstSignerId, true);
+        }
         if (!$template || !$signer) {
             $_SESSION['flash_error'] = 'Pilih template dan penanda tangan aktif.';
             header('Location:/documents');
@@ -130,7 +147,7 @@ final class DocumentController
             header('Location:/documents');
             exit;
         }
-        $r = GeneratedDocument::createBatch($letters, $template, $signer, (int)Auth::id(), trim($_POST['batch_label'] ?? ''), $this->extras());
+        $r = GeneratedDocument::createBatch($letters, $template, $signer, (int)Auth::id(), trim($_POST['batch_label'] ?? ''), $this->extras(), $signerMap);
         AuditLog::write(Auth::id(), 'GENERATE_DOCUMENT_BATCH', 'document_batch', (int)$r['batch_id'], ['count' => count($letters)]);
         $_SESSION['flash_success'] = count($letters) . ' dokumen berhasil dibuat.';
         header('Location:/document-batches/' . $r['batch_id']);
@@ -176,10 +193,16 @@ final class DocumentController
             header('Location:/documents/' . $id);
             exit;
         }
+        $generationBatchId = (int)($d['batch_id'] ?? 0);
         GeneratedDocument::sign((int)$id);
-        AuditLog::write(Auth::id(), 'PROTOTYPE_SIGN_DOCUMENT', 'generated_document', (int)$id, ['signer_id' => (int)$s['id']]);
-        $_SESSION['flash_success'] = 'Dokumen ditandatangani pada mode prototype.';
-        header('Location:/documents/' . $id);
+        $signedIds = [(int)$id];
+        if ($generationBatchId > 0) {
+            $signedIds = array_map(static fn($row) => (int)$row['id'], array_filter(GeneratedDocument::batch($generationBatchId), static fn($row) => $row['tte_status'] === 'SIGNED'));
+        }
+        $signedBatchId = GeneratedDocument::createOrRefreshSignatureBatch($signedIds, (int)Auth::id(), 'Batch Surat Ditandatangani - ' . date('d-m-Y H:i'));
+        AuditLog::write(Auth::id(), 'PROTOTYPE_SIGN_DOCUMENT', 'generated_document', (int)$id, ['signer_id' => (int)$s['id'], 'signature_batch_id' => $signedBatchId]);
+        $_SESSION['flash_success'] = 'Dokumen ditandatangani dan dimasukkan ke satu batch hasil tanda tangan.';
+        header('Location:/signed-batches/' . (int)$signedBatchId);
         exit;
     }
 
@@ -230,23 +253,27 @@ final class DocumentController
         Csrf::validate($_POST['_token'] ?? null);
         $docs = GeneratedDocument::batch((int)$id);
         if (!$docs) { http_response_code(404); return; }
-        $signerIds = array_values(array_unique(array_map(static fn($d) => (int)$d['signer_id'], $docs)));
-        if (count($signerIds) !== 1) {
-            $_SESSION['flash_error'] = 'Batch harus menggunakan satu penanda tangan.';
-            header('Location:/document-batches/' . $id);
-            exit;
+        $pending = array_values(array_filter($docs, static fn($d) => $d['tte_status'] === 'PENDING'));
+        if (!$pending) { $_SESSION['flash_error']='Tidak ada dokumen yang menunggu tanda tangan.'; header('Location:/document-batches/'.$id); exit; }
+        $passkeys = $_POST['passkeys'] ?? [];
+        $passkeys = is_array($passkeys) ? $passkeys : [];
+        $legacyPasskey = (string)($_POST['passkey'] ?? '');
+        $signedIds=[];
+        $groups=[];
+        foreach($pending as $doc){$groups[(int)$doc['signer_id']][]=$doc;}
+        foreach($groups as $signerId=>$group){
+            $s=Signer::find((int)$signerId,true);
+            $passkey=(string)($passkeys[$signerId] ?? $legacyPasskey);
+            if(!$s || !Signer::verifyPrototypePasskey($s,$passkey)){
+                $_SESSION['flash_error']='Passkey penanda tangan '.($s['name']??'yang dipilih').' tidak sesuai.';
+                header('Location:/document-batches/'.$id);exit;
+            }
+            foreach($group as $doc){GeneratedDocument::sign((int)$doc['id']);$signedIds[]=(int)$doc['id'];}
         }
-        $s = Signer::find($signerIds[0], true);
-        if (!$s || !Signer::verifyPrototypePasskey($s, (string)($_POST['passkey'] ?? ''))) {
-            $_SESSION['flash_error'] = 'Passkey prototype tidak sesuai.';
-            header('Location:/document-batches/' . $id);
-            exit;
-        }
-        $count = GeneratedDocument::signBatch((int)$id);
-        AuditLog::write(Auth::id(), 'PROTOTYPE_SIGN_DOCUMENT_BATCH', 'document_batch', (int)$id, ['count' => $count]);
-        $_SESSION['flash_success'] = $count . ' dokumen ditandatangani dengan satu passkey.';
-        header('Location:/document-batches/' . $id);
-        exit;
+        $signatureBatchId=GeneratedDocument::createOrRefreshSignatureBatch($signedIds,(int)Auth::id(),'Batch Surat Ditandatangani - '.date('d-m-Y H:i'));
+        AuditLog::write(Auth::id(),'PROTOTYPE_SIGN_DOCUMENT_BATCH','document_batch',(int)$id,['count'=>count($signedIds),'signature_batch_id'=>$signatureBatchId,'signer_count'=>count($groups)]);
+        $_SESSION['flash_success']=count($signedIds).' dokumen ditandatangani dan dikumpulkan dalam satu batch hasil tanda tangan.';
+        header('Location:/signed-batches/'.(int)$signatureBatchId);exit;
     }
 
     public function batchReject(string $id): void
@@ -257,6 +284,24 @@ final class DocumentController
         $_SESSION['flash_success'] = $count . ' dokumen ditolak.';
         header('Location:/document-batches/' . $id);
         exit;
+    }
+
+    public function signedBatchShow(string $id): void
+    {
+        Auth::requireOutgoingAccess();
+        $batch=GeneratedDocument::signedBatchInfo((int)$id);$documents=GeneratedDocument::signedBatch((int)$id);
+        if(!$batch||!$documents){http_response_code(404);View::render('errors/404');return;}
+        View::render('documents/signed-batch',['batch'=>$batch,'documents'=>$documents]);
+    }
+
+    public function signedBatchPrint(string $id): void
+    {
+        Auth::requireOutgoingAccess();
+        $batch=GeneratedDocument::signedBatchInfo((int)$id);$documents=GeneratedDocument::signedBatch((int)$id);
+        if(!$batch||!$documents){http_response_code(404);exit('Batch tanda tangan tidak ditemukan.');}
+        foreach($documents as &$d){$d['display_html']=PrototypeTteService::decorate((string)$d['snapshot_html'],$d);}
+        unset($d);GeneratedDocument::markPrintedBySignatureBatch((int)$id);
+        require dirname(__DIR__) . '/Views/documents/print.php';exit;
     }
 
     public function printSingle(string $id): void

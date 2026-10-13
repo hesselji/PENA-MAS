@@ -35,7 +35,7 @@
                 <tr><td colspan="7"><div class="empty-state"><span><?= ui_icon('mail') ?></span><h3>Tidak ada item ditemukan</h3><p>Belum ada surat yang cocok dengan pencarian atau pilihan Anda.</p><a class="btn btn-primary" href="/letters/create">Buat Nomor Surat</a></div></td></tr>
             <?php else: foreach($letters as $r): $secret=in_array($r['sensitivity'],['RAHASIA','SANGAT_RAHASIA'],true); ?>
                 <tr class="<?= $secret?'confidential-row':'' ?>">
-                    <td><a class="number-link" href="/letters/<?= (int)$r['id'] ?>"><?= e($r['letter_number']) ?></a><small>Agenda #<?= e($r['agenda_number']) ?> - <?= e($r['letter_type_name']) ?></small></td>
+                    <td><a class="number-link" href="/letters/<?= (int)$r['id'] ?>"><?= e($r['letter_number']) ?></a><?php if (is_new_record($r['created_at'] ?? null)): ?><span class="new-letter-badge">Surat baru</span><?php endif; ?><small>Agenda #<?= e($r['agenda_number']) ?> - <?= e($r['letter_type_name']) ?></small></td>
                     <td><span class="date-cell"><?= ui_icon('calendar') ?><?= e(format_date_id($r['letter_date'])) ?></span></td>
                     <td>
                         <?php if($secret): ?>

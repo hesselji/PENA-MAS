@@ -8,7 +8,7 @@ final class BackupService
     private const TABLES=[
         'work_teams','users','numbering_rules','letter_types','classification_groups','classification_items','number_sequences',
         'employees','signers','outgoing_letters','incoming_letters','incoming_letter_events','document_templates','document_batches',
-        'generated_documents','notifications','audit_logs'
+        'generated_documents','signed_document_batches','incoming_letter_dispositions','notifications','audit_logs'
     ];
     public static function export(): array
     {

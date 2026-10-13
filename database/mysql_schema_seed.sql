@@ -37,6 +37,9 @@ CREATE TABLE users (
     password_hash VARCHAR(255) NOT NULL,
     role ENUM('ADMIN','USER','INCOMING') NOT NULL DEFAULT 'USER',
     work_team_id INT UNSIGNED NULL,
+    employee_id INT UNSIGNED NULL,
+    prototype_passkey_hash VARCHAR(255) NULL,
+    prototype_tte_enabled TINYINT(1) NOT NULL DEFAULT 0,
     is_active TINYINT(1) NOT NULL DEFAULT 1,
     deleted_at DATETIME NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -895,7 +898,7 @@ CREATE TABLE incoming_letters (
     letter_date DATE NOT NULL,
     received_date DATE NOT NULL,
     notes TEXT NULL,
-    workflow_status ENUM('BARU','DIPROSES','SELESAI') NOT NULL DEFAULT 'BARU',
+    workflow_status ENUM('MASUK','DISPOSISI','SELESAI') NOT NULL DEFAULT 'MASUK',
     assigned_team_id INT UNSIGNED NULL,
     assigned_user_id INT UNSIGNED NULL,
     follow_up_note TEXT NULL,
@@ -952,6 +955,9 @@ CREATE TABLE signers (
     position VARCHAR(190) NOT NULL,
     nip VARCHAR(80) NULL,
     work_team_id INT UNSIGNED NULL,
+    employee_id INT UNSIGNED NULL,
+    prototype_passkey_hash VARCHAR(255) NULL,
+    prototype_tte_enabled TINYINT(1) NOT NULL DEFAULT 0,
     is_active TINYINT(1) NOT NULL DEFAULT 1,
     created_by INT UNSIGNED NULL,
     updated_by INT UNSIGNED NULL,
@@ -1103,9 +1109,6 @@ CREATE TABLE employees (
 ) ENGINE=InnoDB;
 
 ALTER TABLE signers
-    ADD COLUMN employee_id INT UNSIGNED NULL AFTER work_team_id,
-    ADD COLUMN prototype_passkey_hash VARCHAR(255) NULL AFTER employee_id,
-    ADD COLUMN prototype_tte_enabled TINYINT(1) NOT NULL DEFAULT 0 AFTER prototype_passkey_hash,
     ADD INDEX idx_signer_employee (employee_id),
     ADD CONSTRAINT fk_signer_employee FOREIGN KEY(employee_id) REFERENCES employees(id) ON DELETE SET NULL;
 
@@ -1122,6 +1125,37 @@ ALTER TABLE generated_documents
     ADD COLUMN rejection_note TEXT NULL AFTER rejected_at,
     ADD COLUMN signature_hash VARCHAR(64) NULL AFTER rejection_note,
     ADD UNIQUE INDEX uniq_generated_tte_reference (tte_reference);
+
+CREATE TABLE incoming_letter_dispositions (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    incoming_letter_id BIGINT UNSIGNED NOT NULL,
+    team_id INT UNSIGNED NOT NULL,
+    assigned_user_id INT UNSIGNED NULL,
+    note TEXT NULL,
+    created_by INT UNSIGNED NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uniq_incoming_disposition_team (incoming_letter_id, team_id),
+    INDEX idx_incoming_disposition_team (team_id, assigned_user_id),
+    CONSTRAINT fk_incoming_disposition_letter FOREIGN KEY(incoming_letter_id) REFERENCES incoming_letters(id) ON DELETE CASCADE,
+    CONSTRAINT fk_incoming_disposition_team FOREIGN KEY(team_id) REFERENCES work_teams(id),
+    CONSTRAINT fk_incoming_disposition_user FOREIGN KEY(assigned_user_id) REFERENCES users(id) ON DELETE SET NULL,
+    CONSTRAINT fk_incoming_disposition_creator FOREIGN KEY(created_by) REFERENCES users(id)
+) ENGINE=InnoDB;
+
+CREATE TABLE signed_document_batches (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    label VARCHAR(180) NULL,
+    created_by INT UNSIGNED NOT NULL,
+    document_count INT UNSIGNED NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_signed_batch_creator FOREIGN KEY(created_by) REFERENCES users(id)
+) ENGINE=InnoDB;
+
+ALTER TABLE generated_documents
+    ADD COLUMN signature_batch_id BIGINT UNSIGNED NULL AFTER batch_id,
+    ADD INDEX idx_generated_signature_batch (signature_batch_id),
+    ADD CONSTRAINT fk_generated_signature_batch FOREIGN KEY(signature_batch_id) REFERENCES signed_document_batches(id) ON DELETE SET NULL;
 
 -- Template contoh dibuat dari dokumen "Surat Tugas Mail Merge 2026.docx" yang diberikan sebagai referensi.
 INSERT INTO document_templates

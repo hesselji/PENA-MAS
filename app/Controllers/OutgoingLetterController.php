@@ -64,6 +64,7 @@ final class OutgoingLetterController
             'classification_child'=>trim($_POST['classification_child']??''),
             'subject'=>trim($_POST['subject']??''),
             'notes'=>trim($_POST['notes']??''),
+            'recipient_mode'=>($_POST['recipient_mode']??'single') === 'multiple' ? 'multiple' : 'single',
             'requested_by'=>Auth::id(),
         ];
 
@@ -73,33 +74,20 @@ final class OutgoingLetterController
             $input['classification_parent'] = 'KU';
         }
 
-        // Tujuan dapat berasal dari: input manual, paste banyak nama, dan akun aktif PENA MAS.
-        // Semua sumber digabung, dirapikan, lalu di-deduplicate tanpa mengubah urutan pertama.
+        // Tujuan surat sengaja dibatasi menjadi dua mode sesuai alur kerja: satu tujuan atau banyak tujuan.
+        $recipientMode = $_POST['recipient_mode'] ?? 'single';
         $recipients = [];
-        $manualRecipient = trim($_POST['recipient'] ?? '');
-        if ($manualRecipient !== '') $recipients[] = $manualRecipient;
-
-        $selectedUserIds = $_POST['selected_user_ids'] ?? [];
-        if (!is_array($selectedUserIds)) $selectedUserIds = [];
-        foreach (User::recipientNamesByIds($selectedUserIds) as $name) {
-            $recipients[] = $name;
-        }
-
-        $selectedEmployeeIds = $_POST['selected_employee_ids'] ?? [];
-        if (!is_array($selectedEmployeeIds)) $selectedEmployeeIds = [];
-        foreach (Employee::recipientNamesByIds($selectedEmployeeIds) as $name) {
-            $recipients[] = $name;
-        }
-
-        $bulkText = trim($_POST['recipients_bulk'] ?? '');
-        if ($bulkText !== '') {
+        if ($recipientMode === 'multiple') {
+            $bulkText = trim($_POST['recipients_bulk'] ?? '');
             $lines = preg_split('/\R/u', $bulkText) ?: [];
             foreach ($lines as $line) {
                 $line = trim(preg_replace('/\s+/u', ' ', $line) ?? $line);
-                // Mendukung hasil copy list bernomor sederhana: "1. Nama" / "1) Nama".
                 $line = preg_replace('/^\s*\d+\s*[.\-)]\s*/u', '', $line) ?? $line;
                 if ($line !== '') $recipients[] = $line;
             }
+        } else {
+            $manualRecipient = trim($_POST['recipient'] ?? '');
+            if ($manualRecipient !== '') $recipients[] = $manualRecipient;
         }
 
         $deduped = [];
@@ -122,7 +110,8 @@ final class OutgoingLetterController
             if (empty($input[$field])) $errors[$field]='Wajib diisi.';
         }
 
-        if (!$recipients) $errors['recipients']='Minimal satu tujuan surat wajib diisi atau dipilih.';
+        if (!in_array($input['recipient_mode'], ['single','multiple'], true)) $errors['recipients']='Mode tujuan surat tidak valid.';
+        if (!$recipients) $errors['recipients']='Minimal satu tujuan surat wajib diisi.';
         if (count($recipients) > 200) $errors['recipients']='Maksimal 200 tujuan dalam satu kali generate.';
         foreach ($recipients as $recipient) {
             $recipientLength = function_exists('mb_strlen') ? mb_strlen($recipient, 'UTF-8') : strlen($recipient);

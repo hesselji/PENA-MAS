@@ -50,7 +50,7 @@ final class Analytics
              GROUP BY ol.classification_code ORDER BY total DESC,ol.classification_code LIMIT 6"
         )->fetchAll();
 
-        $incomingWorkflow = ['BARU'=>0,'DIPROSES'=>0,'SELESAI'=>0];
+        $incomingWorkflow = ['MASUK'=>0,'DISPOSISI'=>0,'SELESAI'=>0];
         if (Auth::isAdmin()) {
             foreach ($pdo->query('SELECT workflow_status,COUNT(*) total FROM incoming_letters GROUP BY workflow_status')->fetchAll() as $row) {
                 $incomingWorkflow[$row['workflow_status']] = (int)$row['total'];

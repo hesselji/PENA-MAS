@@ -7,14 +7,14 @@ final class Employee
 {
     public static function all(bool $activeOnly=false): array
     {
-        $sql='SELECT e.*,wt.name AS work_team_name FROM employees e LEFT JOIN work_teams wt ON wt.id=e.work_team_id';
+        $sql='SELECT e.*,wt.name AS work_team_name,s.id AS signer_id,s.prototype_tte_enabled AS signer_passkey_active FROM employees e LEFT JOIN work_teams wt ON wt.id=e.work_team_id LEFT JOIN signers s ON s.employee_id=e.id';
         if($activeOnly)$sql.=' WHERE e.is_active=1';
         $sql.=' ORDER BY e.is_active DESC,e.name';
         return Database::connection()->query($sql)->fetchAll();
     }
     public static function find(int $id): ?array
     {
-        $stmt=Database::connection()->prepare('SELECT e.*,wt.name AS work_team_name FROM employees e LEFT JOIN work_teams wt ON wt.id=e.work_team_id WHERE e.id=? LIMIT 1');
+        $stmt=Database::connection()->prepare('SELECT e.*,wt.name AS work_team_name,s.id AS signer_id,s.prototype_tte_enabled AS signer_passkey_active FROM employees e LEFT JOIN work_teams wt ON wt.id=e.work_team_id LEFT JOIN signers s ON s.employee_id=e.id WHERE e.id=? LIMIT 1');
         $stmt->execute([$id]);return $stmt->fetch()?:null;
     }
     public static function create(array $d,int $userId): int

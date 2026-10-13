@@ -109,7 +109,7 @@ $isAdmin = \App\Core\Auth::isAdmin();
                 <a class="latest-item" href="/letters/<?= (int)$r['id'] ?>">
                     <span class="latest-file-icon"><?= ui_icon($isSecret ? 'lock' : 'file') ?></span>
                     <span class="latest-main">
-                        <strong><?= e($r['letter_number']) ?></strong>
+                        <strong><?= e($r['letter_number']) ?><?php if (is_new_record($r['created_at'] ?? null)): ?><span class="new-letter-badge">Surat baru</span><?php endif; ?></strong>
                         <small><?= $isSecret ? 'Surat terlindungi. Verifikasi diperlukan untuk melihat detail.' : e($r['subject']) ?></small>
                     </span>
                     <span class="latest-meta">
@@ -206,8 +206,8 @@ $isAdmin = \App\Core\Auth::isAdmin();
         </div>
         <?php if($isAdmin): ?>
             <div class="workflow-mini-summary">
-                <div><span>Baru</span><strong><?= (int)($incomingWorkflow['BARU']??0) ?></strong></div>
-                <div><span>Diproses</span><strong><?= (int)($incomingWorkflow['DIPROSES']??0) ?></strong></div>
+                <div><span>Masuk</span><strong><?= (int)($incomingWorkflow['MASUK']??0) ?></strong></div>
+                <div><span>Disposisi</span><strong><?= (int)($incomingWorkflow['DISPOSISI']??0) ?></strong></div>
                 <div><span>Selesai</span><strong><?= (int)($incomingWorkflow['SELESAI']??0) ?></strong></div>
             </div>
         <?php endif; ?>

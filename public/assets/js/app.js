@@ -354,126 +354,77 @@
   }
 
   // =====================================================================
-  // BATCH TUJUAN SURAT
+  // MODE TUJUAN SURAT: SATU / BANYAK
   // =====================================================================
   const recipientBuilder = $('#recipientBuilder');
   if (recipientBuilder) {
     const recipientSingle = $('#recipientSingle');
     const recipientsBulk = $('#recipientsBulk');
-    const recipientUserSearch = $('#recipientUserSearch');
-    const recipientUserItems = $$('[data-recipient-user]', recipientBuilder);
-    const recipientCheckboxes = $$('[data-recipient-checkbox]', recipientBuilder);
+    const recipientMode = $('#recipientMode');
     const recipientCount = $('#recipientCount');
-    const visibleCount = $('#recipientPickerVisibleCount');
-    const selectAll = $('#selectAllRecipientUsers');
-    const clearAll = $('#clearRecipientUsers');
     const generateLabel = $('#generateButtonLabel');
     const letterForm = $('#letterForm');
+    const modeButtons = $$('[data-recipient-mode]', recipientBuilder);
+    const panels = $$('[data-recipient-panel]', recipientBuilder);
 
     const cleanRecipient = (value) => String(value || '')
-      .trim()
-      .replace(/^\s*\d+\s*[.\-)]\s*/u, '')
-      .replace(/\s+/gu, ' ')
-      .trim();
+      .trim().replace(/^\s*\d+\s*[.\-)]\s*/u, '').replace(/\s+/gu, ' ').trim();
 
     const collectRecipients = () => {
-      const names = [];
-      const single = cleanRecipient(recipientSingle?.value);
-      if (single) names.push(single);
-
-      String(recipientsBulk?.value || '').split(/\r?\n/u).forEach((line) => {
-        const name = cleanRecipient(line);
-        if (name) names.push(name);
-      });
-
-      recipientCheckboxes.forEach((checkbox) => {
-        if (checkbox.checked) {
-          const name = cleanRecipient(checkbox.dataset.recipientName);
-          if (name) names.push(name);
-        }
-      });
-
-      const seen = new Set();
-      return names.filter((name) => {
-        const key = name.toLocaleLowerCase('id-ID');
-        if (seen.has(key)) return false;
-        seen.add(key);
-        return true;
-      });
+      const mode = recipientMode?.value === 'multiple' ? 'multiple' : 'single';
+      if (mode === 'multiple') {
+        return String(recipientsBulk?.value || '').split(/\r?\n/u).map(cleanRecipient).filter(Boolean);
+      }
+      const one = cleanRecipient(recipientSingle?.value);
+      return one ? [one] : [];
     };
 
     const refreshRecipientSummary = () => {
       const total = collectRecipients().length;
       if (recipientCount) recipientCount.textContent = String(total);
-      if (generateLabel) {
-        generateLabel.textContent = total > 1
-          ? `Buat ${total} Nomor Sekaligus`
-          : 'Buat & Simpan Nomor';
-      }
+      if (generateLabel) generateLabel.textContent = total > 1 ? `Buat ${total} Nomor Sekaligus` : 'Buat & Simpan Nomor';
       recipientBuilder.classList.toggle('has-batch', total > 1);
     };
 
-    const filterRecipientUsers = () => {
-      const q = String(recipientUserSearch?.value || '').trim().toLocaleLowerCase('id-ID');
-      let shown = 0;
-      recipientUserItems.forEach((item) => {
-        const haystack = String(item.dataset.search || '').toLocaleLowerCase('id-ID');
-        const show = !q || haystack.includes(q);
-        item.hidden = !show;
-        if (show) shown += 1;
+    const setMode = (mode) => {
+      const next = mode === 'multiple' ? 'multiple' : 'single';
+      if (recipientMode) recipientMode.value = next;
+      modeButtons.forEach((button) => {
+        const active = button.dataset.recipientMode === next;
+        button.classList.toggle('is-active', active);
+        button.setAttribute('aria-selected', active ? 'true' : 'false');
       });
-      if (visibleCount) visibleCount.textContent = String(shown);
+      panels.forEach((panel) => { panel.hidden = panel.dataset.recipientPanel !== next; });
+      refreshRecipientSummary();
     };
 
+    modeButtons.forEach((button) => button.addEventListener('click', () => setMode(button.dataset.recipientMode)));
     recipientSingle?.addEventListener('input', refreshRecipientSummary);
     recipientsBulk?.addEventListener('input', refreshRecipientSummary);
-    recipientCheckboxes.forEach((checkbox) => checkbox.addEventListener('change', refreshRecipientSummary));
-    recipientUserSearch?.addEventListener('input', filterRecipientUsers);
-
-    selectAll?.addEventListener('click', () => {
-      recipientUserItems.forEach((item) => {
-        if (item.hidden) return;
-        const checkbox = $('[data-recipient-checkbox]', item);
-        if (checkbox) checkbox.checked = true;
-      });
-      refreshRecipientSummary();
-    });
-
-    clearAll?.addEventListener('click', () => {
-      recipientCheckboxes.forEach((checkbox) => { checkbox.checked = false; });
-      refreshRecipientSummary();
-    });
 
     letterForm?.addEventListener('submit', (event) => {
       const total = collectRecipients().length;
       if (total < 1) {
-        event.preventDefault();
-        letterForm.classList.remove('is-loading');
-        const submit = $('button[type="submit"]', letterForm);
-        submit?.removeAttribute('aria-busy');
+        event.preventDefault(); letterForm.classList.remove('is-loading');
+        letterForm.querySelector('button[type="submit"]')?.removeAttribute('aria-busy');
         recipientBuilder.classList.add('recipient-builder-invalid');
         recipientBuilder.scrollIntoView({ behavior: 'smooth', block: 'center' });
         window.setTimeout(() => recipientBuilder.classList.remove('recipient-builder-invalid'), 1800);
         return;
       }
       if (total > 200) {
-        event.preventDefault();
-        letterForm.classList.remove('is-loading');
-        const submit = $('button[type="submit"]', letterForm);
-        submit?.removeAttribute('aria-busy');
+        event.preventDefault(); letterForm.classList.remove('is-loading');
+        letterForm.querySelector('button[type="submit"]')?.removeAttribute('aria-busy');
         window.alert('Maksimal 200 tujuan dalam satu kali pembuatan nomor.');
         return;
       }
       if (total > 1 && !window.confirm(`Buat ${total} nomor surat sekaligus?`)) {
-        event.preventDefault();
-        letterForm.classList.remove('is-loading');
-        const submit = $('button[type="submit"]', letterForm);
-        submit?.removeAttribute('aria-busy');
+        event.preventDefault(); letterForm.classList.remove('is-loading');
+        letterForm.querySelector('button[type="submit"]')?.removeAttribute('aria-busy');
       }
     });
 
-    filterRecipientUsers();
-    refreshRecipientSummary();
+    setMode(recipientMode?.value || 'single');
   }
 })();
 
@@ -1393,4 +1344,134 @@
   input.addEventListener('input',filter);
   document.querySelector('#selectAllRecipientEmployees')?.addEventListener('click',()=>items.filter(i=>!i.hidden).forEach(i=>{const c=i.querySelector('input[type=checkbox]');if(c){c.checked=true;c.dispatchEvent(new Event('change',{bubbles:true}));}}));
   document.querySelector('#clearRecipientEmployees')?.addEventListener('click',()=>items.forEach(i=>{const c=i.querySelector('input[type=checkbox]');if(c){c.checked=false;c.dispatchEvent(new Event('change',{bubbles:true}));}}));
+})();
+
+
+/* ================================================================
+   PENA MAS - reusable table pagination, typing history & disposition
+   ================================================================ */
+(() => {
+  'use strict';
+
+
+  const signerMode = document.querySelector('#documentSignerMode');
+  const singleSignerField = document.querySelector('[data-single-signer-field]');
+  const signerRows = [...document.querySelectorAll('[data-signer-row]')];
+  const syncSignerMode = () => {
+    const perLetter = signerMode?.value === 'per_letter';
+    if (singleSignerField) singleSignerField.hidden = perLetter;
+    const defaultSelect = document.querySelector('#documentSignerDefault');
+    if (defaultSelect) defaultSelect.required = !perLetter;
+    signerRows.forEach((select) => { select.disabled = !perLetter; select.required = perLetter; });
+  };
+  signerMode?.addEventListener('change', syncSignerMode);
+  syncSignerMode();
+
+  // Pagination client-side: keeps existing PHP queries intact and only paginates rows already loaded.
+  document.querySelectorAll('.data-table-wrap, .report-table-wrap').forEach((wrap) => {
+    const table = wrap.querySelector('table.data-table, table.report-table');
+    const tbody = table?.querySelector('tbody');
+    if (!table || !tbody || wrap.dataset.paginationReady === '1') return;
+    const allRows = [...tbody.querySelectorAll('tr')].filter((row) => !row.querySelector('.empty-state'));
+    if (allRows.length === 0) return;
+    wrap.dataset.paginationReady = '1';
+
+    const pager = document.createElement('div');
+    pager.className = 'table-pagination';
+    pager.innerHTML = `
+      <div class="table-pagination-left"><span class="rows-label"><strong data-page-count>${allRows.length}</strong> row(s)</span><label>Rows per page <select data-page-size><option value="5">5</option><option value="10" selected>10</option><option value="50">50</option></select></label></div>
+      <div class="table-pagination-right"><span>Page <strong data-page-current>1</strong> of <strong data-page-total>1</strong></span><button type="button" data-page-first aria-label="Halaman pertama">«</button><button type="button" data-page-prev aria-label="Halaman sebelumnya">‹</button><button type="button" data-page-next aria-label="Halaman berikutnya">›</button><button type="button" data-page-last aria-label="Halaman terakhir">»</button></div>`;
+    wrap.appendChild(pager);
+
+    const size = pager.querySelector('[data-page-size]');
+    const current = pager.querySelector('[data-page-current]');
+    const total = pager.querySelector('[data-page-total]');
+    const count = pager.querySelector('[data-page-count]');
+    let page = 1;
+
+    const render = () => {
+      const perPage = Number(size.value) || 10;
+      const pages = Math.max(1, Math.ceil(allRows.length / perPage));
+      page = Math.min(Math.max(1, page), pages);
+      const start = (page - 1) * perPage;
+      allRows.forEach((row, i) => { row.hidden = i < start || i >= start + perPage; });
+      current.textContent = String(page); total.textContent = String(pages); count.textContent = String(allRows.length);
+      pager.querySelector('[data-page-first]').disabled = page <= 1;
+      pager.querySelector('[data-page-prev]').disabled = page <= 1;
+      pager.querySelector('[data-page-next]').disabled = page >= pages;
+      pager.querySelector('[data-page-last]').disabled = page >= pages;
+    };
+    size.addEventListener('change', () => { page = 1; render(); });
+    pager.querySelector('[data-page-first]').addEventListener('click', () => { page = 1; render(); });
+    pager.querySelector('[data-page-prev]').addEventListener('click', () => { page -= 1; render(); });
+    pager.querySelector('[data-page-next]').addEventListener('click', () => { page += 1; render(); });
+    pager.querySelector('[data-page-last]').addEventListener('click', () => { page = Math.ceil(allRows.length / (Number(size.value) || 10)); render(); });
+    render();
+  });
+
+  // Local typing history. Passwords, search boxes and date/file fields are intentionally excluded.
+  const HISTORY_KEY = 'penamas:typing-history:v1';
+  const loadHistory = () => { try { const x = JSON.parse(localStorage.getItem(HISTORY_KEY) || '{}'); return x && typeof x === 'object' ? x : {}; } catch (_) { return {}; } };
+  const saveHistory = (data) => { try { localStorage.setItem(HISTORY_KEY, JSON.stringify(data)); } catch (_) {} };
+  const historyStore = loadHistory();
+  const excluded = /(password|passkey|token|csrf|search)/i;
+  const fieldKey = (el) => `field:${el.name || el.id || el.getAttribute('placeholder') || 'manual'}`;
+
+  document.querySelectorAll('input, textarea').forEach((el) => {
+    const type = String(el.type || 'text');
+    if (type === 'hidden' || type === 'file' || type === 'date' || type === 'datetime-local' || excluded.test(type) || excluded.test(el.name || '')) return;
+    if (el.dataset.noTypingHistory !== undefined) return;
+    const key = fieldKey(el);
+    let values = Array.isArray(historyStore[key]) ? historyStore[key] : [];
+    let list = el.list;
+    if (!list) {
+      list = document.createElement('datalist'); list.id = `typing-history-${Math.random().toString(36).slice(2)}`; document.body.appendChild(list); el.setAttribute('list', list.id);
+    }
+    const refreshSuggestions = (query = '') => {
+      if (!list) return;
+      const q = String(query || '').trim().toLocaleLowerCase('id-ID');
+      list.querySelectorAll('option[data-typing-history]').forEach((option) => option.remove());
+      values.filter(v => !q || String(v).toLocaleLowerCase('id-ID').includes(q)).slice(0, 12).forEach(v => {
+        const option = document.createElement('option'); option.value = v; option.dataset.typingHistory = '1'; list.appendChild(option);
+      });
+    };
+    refreshSuggestions(el.value);
+    let textareaPopup = null;
+    if (el.tagName === 'TEXTAREA') {
+      const holder = el.parentElement || el; holder.style.position = holder.style.position || 'relative';
+      textareaPopup = document.createElement('div'); textareaPopup.className = 'typing-history-popup'; textareaPopup.hidden = true; holder.appendChild(textareaPopup);
+      const renderTextareaPopup = () => {
+        const q = String(el.value || '').trim().toLocaleLowerCase('id-ID');
+        const matches = values.filter(v => !q || String(v).toLocaleLowerCase('id-ID').includes(q)).slice(0, 8);
+        textareaPopup.innerHTML = '';
+        matches.forEach((value) => {
+          const button = document.createElement('button'); button.type = 'button'; button.dataset.historyValue = value; button.textContent = value; textareaPopup.appendChild(button);
+        });
+        textareaPopup.hidden = matches.length === 0;
+      };
+      textareaPopup.addEventListener('mousedown', (event) => {
+        const button = event.target.closest('[data-history-value]'); if (!button) return;
+        event.preventDefault(); el.value = button.dataset.historyValue || ''; el.dispatchEvent(new Event('input',{bubbles:true})); textareaPopup.hidden = true;
+      });
+      el.addEventListener('focus', renderTextareaPopup);
+      el.addEventListener('input', renderTextareaPopup);
+      document.addEventListener('click', (event) => { if (!holder.contains(event.target)) textareaPopup.hidden = true; });
+    }
+    el.addEventListener('focus', () => refreshSuggestions(el.value));
+    el.addEventListener('input', () => refreshSuggestions(el.value));
+    el.addEventListener('change', () => {
+      const value = String(el.value || '').trim(); if (!value || value.length < 2) return;
+      values = [value, ...values.filter(v => v !== value)].slice(0, 30); historyStore[key] = values; saveHistory(historyStore);
+      refreshSuggestions(value);
+    });
+  });
+
+  // Enable the matching person selector only for checked disposition teams.
+  document.querySelectorAll('[data-disposition-team]').forEach((checkbox) => {
+    const sync = () => {
+      const select = document.querySelector(`[data-disposition-user="${checkbox.value}"]`);
+      if (select) select.disabled = !checkbox.checked;
+    };
+    checkbox.addEventListener('change', sync); sync();
+  });
 })();

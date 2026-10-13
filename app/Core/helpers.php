@@ -23,7 +23,12 @@ function sensitivity_label(string $code): string {
     return match ($code) { 'BIASA' => 'Biasa', 'PENTING' => 'Penting', 'RAHASIA' => 'Rahasia', 'SANGAT_RAHASIA' => 'Sangat Rahasia', default => $code };
 }
 function incoming_status_label(string $status): string {
-    return match ($status) { 'BARU' => 'Baru', 'DIPROSES' => 'Diproses', 'SELESAI' => 'Selesai', default => ucfirst(strtolower($status)) };
+    return match ($status) { 'MASUK' => 'Masuk', 'DISPOSISI' => 'Disposisi', 'SELESAI' => 'Selesai', default => ucfirst(strtolower($status)) };
+}
+function is_new_record(?string $createdAt, int $hours = 24): bool {
+    if (!$createdAt) return false;
+    $ts = strtotime($createdAt);
+    return $ts !== false && $ts >= (time() - ($hours * 3600));
 }
 function status_label(string $status): string {
     return match ($status) { 'ACTIVE' => 'Aktif', 'CANCELLED' => 'Dibatalkan', default => ucfirst(strtolower($status)) };
